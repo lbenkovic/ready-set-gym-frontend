@@ -53,6 +53,8 @@
 </template>
 
 <script>
+import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
+
 export default {
   name: "LogIn",
   data() {
@@ -71,6 +73,33 @@ export default {
       loading: false,
       loginError: null,
     };
+  },
+  setup() {
+    const usersCollectionStore = useUsersCollectionStore();
+    return { usersCollectionStore };
+  },
+  methods: {
+    async loginUser() {
+      try {
+        this.loading = true;
+        const res = await this.usersCollectionStore.fetchUserData(
+          this.email,
+          this.password
+        );
+        if (res.status === 200) {
+          localStorage.setItem("userEmail", this.email);
+        }
+        this.$router.push("/home");
+      } catch (error) {
+        console.error("Login failed: ", error.response.data.error);
+        this.loginError = "Incorrect email or password. Please try again.";
+      } finally {
+        this.loading = false;
+      }
+    },
+    cancelLogin() {
+      (this.email = ""), (this.password = ""), (this.loginError = null);
+    },
   },
 };
 </script>

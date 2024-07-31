@@ -45,6 +45,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
       return response;
     },
     async registerUser(firstName, lastName, email, password) {
+      console.log(firstName, lastName, email, password);
       try {
         const response = await axios.post(`${config.BACKEND_URL}/users`, {
           firstName: firstName,
