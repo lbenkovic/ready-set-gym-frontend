@@ -1,25 +1,19 @@
 <template>
   <div class="main">
-    <div class="header" style="padding-left: 15px">
-      <router-link to="/" class="btn-dark" style="width: 100px">
-        <span class="btn-dark material-symbols-outlined"> arrow_back_ios </span>
+    <div class="header">
+      <router-link to="/" class="btn-dark">
+        <span class="btn-dark material-symbols-outlined">arrow_back_ios</span>
       </router-link>
     </div>
-    <h2 style="color: white; text-align: center">Log in to your account</h2>
+    <h2 class="title">Log in to your account</h2>
     <div class="input-login">
-      <h3 style="color: white">E-mail</h3>
-      <input
-        type="email"
-        v-model="email"
-        class="form-control input-field"
-        style="background-color: #d29433"
-      />
-      <h3 style="color: white">Password</h3>
+      <h3 class="label">E-mail</h3>
+      <input type="email" v-model="email" class="form-control input-field" />
+      <h3 class="label">Password</h3>
       <input
         type="password"
         v-model="password"
         class="form-control input-field"
-        style="background-color: #d29433"
       />
       <div class="submit">
         <button
@@ -53,57 +47,89 @@
 </template>
 
 <script>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
 
 export default {
   name: "LogIn",
-  data() {
-    return {
-      btnstyleGreen: {
-        borderRadius: "20px",
-        width: "300px",
-      },
-      btnstyleGray: {
-        borderRadius: "20px",
-        width: "300px",
-        marginTop: "10px",
-      },
-      email: "",
-      password: "",
-      loading: false,
-      loginError: null,
-    };
-  },
   setup() {
+    const email = ref("");
+    const password = ref("");
+    const loading = ref(false);
+    const loginError = ref(null);
+
     const usersCollectionStore = useUsersCollectionStore();
-    return { usersCollectionStore };
-  },
-  methods: {
-    async loginUser() {
+    const router = useRouter();
+
+    const btnstyleGreen = {
+      borderRadius: "20px",
+      width: "300px",
+    };
+
+    const btnstyleGray = {
+      borderRadius: "20px",
+      width: "300px",
+    };
+
+    const loginUser = async () => {
       try {
-        this.loading = true;
-        const res = await this.usersCollectionStore.fetchUserData(
-          this.email,
-          this.password
+        loading.value = true;
+        const res = await usersCollectionStore.fetchUserData(
+          email.value,
+          password.value
         );
         if (res.status === 200) {
-          localStorage.setItem("userEmail", this.email);
+          localStorage.setItem("userEmail", email.value);
+          router.push("/home");
         }
-        this.$router.push("/home");
       } catch (error) {
-        console.error("Login failed: ", error.response.data.error);
-        this.loginError = "Incorrect email or password. Please try again.";
+        console.error("Login failed: ", error);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          loginError.value = error.response.data.error;
+        } else {
+          loginError.value = "An unexpected error occurred. Please try again.";
+        }
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
-    cancelLogin() {
-      (this.email = ""), (this.password = ""), (this.loginError = null);
-    },
+    };
+
+    const cancelLogin = () => {
+      email.value = "";
+      password.value = "";
+      loginError.value = null;
+    };
+
+    return {
+      email,
+      password,
+      loading,
+      loginError,
+      btnstyleGreen,
+      btnstyleGray,
+      loginUser,
+      cancelLogin,
+    };
   },
 };
 </script>
+
 <style scoped>
+.header {
+  padding-left: 15px;
+}
+.title {
+  color: white;
+  text-align: center;
+}
+.label {
+  color: white;
+}
 .input-login {
   margin-top: 30px;
   display: flex;
@@ -115,10 +141,11 @@ export default {
   background-color: #d29433;
   width: 300px;
   min-width: 100px;
-  padding: 8px 16px 8px 16px;
+  padding: 8px 16px;
   border-radius: 20px;
   text-align: center;
   margin: 10px;
+  color: white;
 }
 .submit {
   display: flex;
@@ -127,6 +154,18 @@ export default {
   align-items: center;
   margin-top: 30px;
 }
+.btn-success,
+.btn-secondary {
+  border-radius: 20px;
+  width: 350px;
+  padding: 10px;
+  font-size: 15px;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 20px;
+  color: white;
+  border: none;
+}
 
 .btn-dark {
   background-color: black;
@@ -134,20 +173,12 @@ export default {
   margin: 20px 0 0 10px !important;
   padding: 0 !important;
 }
-
 .btn-dark:hover {
   background-color: black;
 }
-.btn-dark:focus {
-  border: none;
-}
-.btn-dark:active {
-  border: none;
-}
+.btn-dark:focus,
+.btn-dark:active,
 .btn-dark::-moz-focus-inner {
-  border: 0;
-}
-.header {
-  margin: 0;
+  border: none;
 }
 </style>
