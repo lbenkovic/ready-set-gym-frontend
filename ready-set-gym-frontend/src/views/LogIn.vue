@@ -92,7 +92,7 @@ export default {
         ) {
           loginError.value = error.response.data.error;
         } else {
-          loginError.value = "An unexpected error occurred. Please try again.";
+          loginError.value = "Incorrect email or password. Please try again.";
         }
       } finally {
         loading.value = false;

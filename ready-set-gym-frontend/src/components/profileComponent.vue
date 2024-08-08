@@ -70,6 +70,11 @@ export default {
       userImage: "",
     };
   },
+  setup() {
+    const userDiaryCollectionStore = useUserDiaryCollectionStore();
+    const usersCollectionStore = useUsersCollectionStore();
+    return { userDiaryCollectionStore, usersCollectionStore };
+  },
   methods: {
     openModal() {
       this.activeModal = !this.activeModal;
@@ -79,6 +84,20 @@ export default {
         modalType: modalType,
       };
       eventBus.emit("openModal", data);
+    },
+    async getUserProfile() {
+      const res = await this.usersCollectionStore.getUserProfile();
+      if (res) {
+        console.log(res);
+        this.userFullName = `${res.data.firstName} ${res.data.lastName}`;
+        this.userImage = res.data.imagePath;
+      }
+    },
+    fetchNewUserData() {
+      eventBus.on("success", async () => {
+        await this.getUserProfile();
+        await this.getUserDiary();
+      });
     },
     logout() {
       const confirmed = confirm("Really log out?");
@@ -91,6 +110,7 @@ export default {
   created() {
     eventBus.on("closeModal", (data) => {
       if (data.closeModal) this.activeModal = false;
+      this.getUserProfile();
     });
   },
 };
