@@ -51,7 +51,6 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
                         password,
                     }
                 );
-                // console.log("login:", response.data.data.token);
                 const token = response.data.data.token;
                 localStorage.setItem("token", token);
                 return response;

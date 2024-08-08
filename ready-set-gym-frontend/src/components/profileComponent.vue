@@ -96,7 +96,6 @@ export default {
         },
         async getUserProfile() {
             const res = await this.usersCollectionStore.getUserProfile();
-            console.log(res.data.data);
             if (res) {
                 this.userFullName = `${res.data.data.user.firstName} ${res.data.data.user.lastName}`;
                 this.userImage = res.data.imagePath;
