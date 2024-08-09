@@ -81,9 +81,11 @@ export default {
                     old_password: this.oldPassword,
                     new_password: this.newPassword,
                 };
-                const res =
-                    await this.usersCollectionStore.updateUserData(formData);
-                if (res.status === 201) {
+                const res = await this.usersCollectionStore.updateUserData(
+                    formData
+                );
+                console.log(res);
+                if (res.status === 200) {
                     this.loading = false;
                     eventBus.emit("success", "Data updated successfully!");
                     const closeModalData = {

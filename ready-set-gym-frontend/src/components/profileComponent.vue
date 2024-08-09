@@ -96,6 +96,7 @@ export default {
         },
         async getUserProfile() {
             const res = await this.usersCollectionStore.getUserProfile();
+            console.log(res);
             if (res) {
                 this.userFullName = `${res.data.data.user.firstName} ${res.data.data.user.lastName}`;
                 this.userImage = res.data.imagePath;
@@ -107,19 +108,20 @@ export default {
                 await this.getUserDiary();
             });
         },
-        logout() {
+        async logout() {
             const confirmed = confirm("Really log out?");
             if (confirmed) {
-                localStorage.removeItem("token");
+                await this.usersCollectionStore.logoutUser();
                 this.$router.push({ name: "login" });
+                // localStorage.removeItem("token");
             }
         },
     },
-    created() {
-        this.getUserProfile();
-        eventBus.on("closeModal", (data) => {
+    async created() {
+        await this.getUserProfile();
+        eventBus.on("closeModal", async (data) => {
             if (data.closeModal) this.activeModal = false;
-            this.getUserProfile();
+            await this.getUserProfile();
         });
     },
 };

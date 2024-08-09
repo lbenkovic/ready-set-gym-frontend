@@ -1,49 +1,55 @@
 <template>
-  <div class="main">
-    <div class="header">
-      <router-link to="/" class="btn-dark">
-        <span class="btn-dark material-symbols-outlined">arrow_back_ios</span>
-      </router-link>
+    <div class="main">
+        <div class="header">
+            <router-link to="/" class="btn-dark">
+                <span class="btn-dark material-symbols-outlined"
+                    >arrow_back_ios</span
+                >
+            </router-link>
+        </div>
+        <h2 class="title">Log in to your account</h2>
+        <div class="input-login">
+            <h3 class="label">E-mail</h3>
+            <input
+                type="email"
+                v-model="email"
+                class="form-control input-field"
+            />
+            <h3 class="label">Password</h3>
+            <input
+                type="password"
+                v-model="password"
+                class="form-control input-field"
+            />
+            <div class="submit">
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    :style="btnstyleGreen"
+                    @click="loginUser"
+                >
+                    <span
+                        v-if="loading"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                    ></span>
+                    <span v-else>Login</span>
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :style="btnstyleGray"
+                    @click="cancelLogin"
+                >
+                    Cancel
+                </button>
+            </div>
+            <div v-if="loginError" class="alert alert-danger" role="alert">
+                {{ loginError }}
+            </div>
+        </div>
     </div>
-    <h2 class="title">Log in to your account</h2>
-    <div class="input-login">
-      <h3 class="label">E-mail</h3>
-      <input type="email" v-model="email" class="form-control input-field" />
-      <h3 class="label">Password</h3>
-      <input
-        type="password"
-        v-model="password"
-        class="form-control input-field"
-      />
-      <div class="submit">
-        <button
-          type="button"
-          class="btn btn-success"
-          :style="btnstyleGreen"
-          @click="loginUser"
-        >
-          <span
-            v-if="loading"
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-          ></span>
-          <span v-else>Login</span>
-        </button>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          :style="btnstyleGray"
-          @click="cancelLogin"
-        >
-          Cancel
-        </button>
-      </div>
-      <div v-if="loginError" class="alert alert-danger" role="alert">
-        {{ loginError }}
-      </div>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -52,133 +58,134 @@ import { useRouter } from "vue-router";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
 
 export default {
-  name: "LogIn",
-  setup() {
-    const email = ref("");
-    const password = ref("");
-    const loading = ref(false);
-    const loginError = ref(null);
+    name: "LogIn",
+    setup() {
+        const email = ref("");
+        const password = ref("");
+        const loading = ref(false);
+        const loginError = ref(null);
 
-    const usersCollectionStore = useUsersCollectionStore();
-    const router = useRouter();
+        const usersCollectionStore = useUsersCollectionStore();
+        const router = useRouter();
 
-    const btnstyleGreen = {
-      borderRadius: "20px",
-      width: "300px",
-    };
+        const btnstyleGreen = {
+            borderRadius: "20px",
+            width: "300px",
+        };
 
-    const btnstyleGray = {
-      borderRadius: "20px",
-      width: "300px",
-    };
+        const btnstyleGray = {
+            borderRadius: "20px",
+            width: "300px",
+        };
 
-    const loginUser = async () => {
-      try {
-        loading.value = true;
-        const res = await usersCollectionStore.fetchUserData(
-          email.value,
-          password.value
-        );
-        if (res.status === 200) {
-          localStorage.setItem("userEmail", email.value);
-          router.push("/home");
-        }
-      } catch (error) {
-        console.error("Login failed: ", error);
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          loginError.value = error.response.data.error;
-        } else {
-          loginError.value = "Incorrect email or password. Please try again.";
-        }
-      } finally {
-        loading.value = false;
-      }
-    };
+        const loginUser = async () => {
+            try {
+                loading.value = true;
+                const res = await usersCollectionStore.fetchUserData(
+                    email.value,
+                    password.value
+                );
+                if (res.status === 200) {
+                    // localStorage.setItem("userEmail", email.value);
+                    router.push("/home");
+                }
+            } catch (error) {
+                console.error("Login failed: ", error);
+                if (
+                    error.response &&
+                    error.response.data &&
+                    error.response.data.error
+                ) {
+                    loginError.value = error.response.data.error;
+                } else {
+                    loginError.value =
+                        "Incorrect email or password. Please try again.";
+                }
+            } finally {
+                loading.value = false;
+            }
+        };
 
-    const cancelLogin = () => {
-      email.value = "";
-      password.value = "";
-      loginError.value = null;
-    };
+        const cancelLogin = () => {
+            email.value = "";
+            password.value = "";
+            loginError.value = null;
+        };
 
-    return {
-      email,
-      password,
-      loading,
-      loginError,
-      btnstyleGreen,
-      btnstyleGray,
-      loginUser,
-      cancelLogin,
-    };
-  },
+        return {
+            email,
+            password,
+            loading,
+            loginError,
+            btnstyleGreen,
+            btnstyleGray,
+            loginUser,
+            cancelLogin,
+        };
+    },
 };
 </script>
 
 <style scoped>
 .header {
-  padding-left: 15px;
+    padding-left: 15px;
 }
 .title {
-  color: white;
-  text-align: center;
+    color: white;
+    text-align: center;
 }
 .label {
-  color: white;
+    color: white;
 }
 .input-login {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 .input-field {
-  background-color: #d29433;
-  width: 300px;
-  min-width: 100px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-align: center;
-  margin: 10px;
-  color: white;
+    background-color: #d29433;
+    width: 300px;
+    min-width: 100px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 10px;
+    color: white;
 }
 .submit {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
 }
 .btn-success,
 .btn-secondary {
-  border-radius: 20px;
-  width: 350px;
-  padding: 10px;
-  font-size: 15px;
-  text-align: center;
-  cursor: pointer;
-  margin-top: 20px;
-  color: white;
-  border: none;
+    border-radius: 20px;
+    width: 350px;
+    padding: 10px;
+    font-size: 15px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 20px;
+    color: white;
+    border: none;
 }
 
 .btn-dark {
-  background-color: black;
-  border: none;
-  margin: 20px 0 0 10px !important;
-  padding: 0 !important;
+    background-color: black;
+    border: none;
+    margin: 20px 0 0 10px !important;
+    padding: 0 !important;
 }
 .btn-dark:hover {
-  background-color: black;
+    background-color: black;
 }
 .btn-dark:focus,
 .btn-dark:active,
 .btn-dark::-moz-focus-inner {
-  border: none;
+    border: none;
 }
 </style>

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import config from "../../config.json";
 
 import axios from "axios";
+import { withDirectives } from "vue";
 
 export const useUsersCollectionStore = defineStore("usersCollectionStore", {
     state: () => ({}),
@@ -13,10 +14,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
                     `${config.BACKEND_URL}/user`,
                     formData,
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
+                        withCredentials: true,
                     }
                 );
                 return response;
@@ -31,10 +29,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
                     `${config.BACKEND_URL}/user`,
                     formData,
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
+                        withCredentials: true,
                     }
                 );
                 return response;
@@ -45,15 +40,28 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         async fetchUserData(email, password) {
             try {
                 const response = await axios.post(
-                    `${config.BACKEND_URL}/auth`,
+                    `${config.BACKEND_URL}/login`,
                     {
                         email,
                         password,
-                    }
+                    },
+                    { withCredentials: true }
                 );
+                console.log("LOGIN:", response);
                 const token = response.data.data.token;
                 localStorage.setItem("token", token);
                 return response;
+            } catch (error) {
+                console.error(error.response.data);
+            }
+        },
+        async logoutUser() {
+            try {
+                await axios.post(
+                    `${config.BACKEND_URL}/logout`,
+                    {},
+                    { withCredentials: true }
+                );
             } catch (error) {
                 console.error(error.response.data);
             }
@@ -76,21 +84,13 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         },
         async getUserProfile() {
             try {
-                const token = localStorage.getItem("token");
-                const email = localStorage.getItem("userEmail");
-                console.log(email);
-                const response = await axios.get(
-                    `${config.BACKEND_URL}/users/profile`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            Email: email,
-                        },
-                    }
-                );
-                return response;
+                const response = await axios.get(`${config.BACKEND_URL}/user`, {
+                    withCredentials: true,
+                });
+                const data = response;
+                return data;
             } catch (error) {
-                console.error(error.response.data);
+                console.error(error);
             }
         },
     },
