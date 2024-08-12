@@ -110,6 +110,9 @@ export default {
 </script>
 
 <style scoped>
+.toast-container {
+  z-index: 1050;
+}
 .custom-toast {
   background-color: orange;
   color: black;

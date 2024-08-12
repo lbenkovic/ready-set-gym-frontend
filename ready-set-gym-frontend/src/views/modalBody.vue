@@ -3,14 +3,13 @@
     <div v-show="activeModal" class="modal-outer">
       <span
         class="material-symbols-outlined exit-button-modal"
-        @click="closeModal()"
+        @click="closeModal"
       >
         close
       </span>
-
       <div class="modal-inner">
-        <!-- Modal content -->
         <div class="modal-content">
+          <!-- Modal content components -->
           <editProfileDataModalBody v-if="modalType === 'edit-profile-data'" />
           <editProfilePictureModalBody
             v-if="modalType === 'edit-profile-picture'"
@@ -34,8 +33,6 @@
 
 <script>
 import eventBus from "@/eventBus";
-
-//modals
 import editProfileDataModalBody from "@/components/modals/editProfileDataModalBody.vue";
 import editProfilePictureModalBody from "@/components/modals/editProfilePictureModalBody.vue";
 import addNewWorkoutPlanModalBody from "@/components/modals/addNewWorkoutPlanModalBody.vue";
@@ -48,13 +45,8 @@ export default {
     return {
       modalType: "",
       workoutPlan: "",
+      activeModal: false,
     };
-  },
-  props: {
-    activeModal: {
-      type: Boolean,
-      required: true,
-    },
   },
   components: {
     editProfileDataModalBody,
@@ -63,31 +55,23 @@ export default {
     recommendedWorkoutPlanModalBody,
     userWorkoutPlanModalBody,
   },
-  setup() {},
   created() {
-    document.addEventListener("keydown", this.press);
     eventBus.on("openModal", (data) => {
       this.modalType = data.modalType;
-      if (data.workoutPlan !== null) {
-        this.workoutPlan = data.workoutPlan;
-      }
+      this.workoutPlan = data.workoutPlan || "";
+      this.activeModal = true;
     });
     eventBus.on("closeModal", () => {
-      this.modalType = "";
-      this.workoutData = "";
+      this.closeModal();
     });
   },
   methods: {
-    press(event) {
-      if (event.keyCode === 27 && this.activeModal) {
-        this.closeModal();
-      }
-    },
     closeModal() {
-      const closeModalData = {
-        closeModal: true,
-      };
-      eventBus.emit("closeModal", closeModalData);
+      if (this.activeModal) {
+        this.activeModal = false;
+        this.modalType = "";
+        this.workoutPlan = "";
+      }
     },
   },
 };

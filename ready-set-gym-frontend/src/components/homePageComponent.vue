@@ -45,7 +45,10 @@
           ></button>
         </div>
         <div class="carousel-inner">
-          <div class="carousel-item active">
+          <div
+            class="carousel-item active"
+            @click="openModalEvent('recommended-workout-plan', 'crossFit')"
+          >
             <img
               src="@/assets/crossfit.jpg"
               class="d-block w-100"
@@ -60,7 +63,10 @@
               </p>
             </div>
           </div>
-          <div class="carousel-item">
+          <div
+            class="carousel-item"
+            @click="openModalEvent('recommended-workout-plan', 'lowerBody')"
+          >
             <img
               src="@/assets/lower-body.jpg"
               class="d-block w-100"
@@ -75,7 +81,10 @@
               </p>
             </div>
           </div>
-          <div class="carousel-item">
+          <div
+            class="carousel-item"
+            @click="openModalEvent('recommended-workout-plan', 'upperBody')"
+          >
             <img
               src="@/assets/upper-body.jpg"
               class="d-block w-100"
@@ -111,12 +120,69 @@
         </button>
       </div>
     </div>
+    <div class="my-workout" v-if="searchText === ''">
+      <span class="my-workouts-span">CREATE YOUR OWN WORKOUT</span>
+      &nbsp;&nbsp;&nbsp;
+      <span
+        class="material-symbols-outlined add-new-button"
+        type="button"
+        @click="openModalEvent('add-new-workout-plan')"
+      >
+        add_box
+      </span>
+    </div>
+    <mainModal
+      :active-modal="activeModal"
+      :modal-type="modalType"
+      :workout-plan="currentWorkoutPlan"
+    />
   </div>
 </template>
 
 <script>
+import eventBus from "@/eventBus";
+import mainModal from "@/views/modalBody.vue";
+
+import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
+
 export default {
   name: "homePageComponent",
+  data() {
+    return {
+      activeModal: false,
+      currentWorkoutPlan: "", // Variable to keep track of the current workout plan
+      modalType: "recommended-workout-plan",
+      searchText: "",
+    };
+  },
+  components: {
+    mainModal,
+  },
+  setup() {
+    const exerciseListCollectionStore = useExerciseLiseCollectionStore();
+    return { exerciseListCollectionStore };
+  },
+  async created() {
+    eventBus.on("closeModal", () => {
+      this.closeModal();
+    });
+  },
+  methods: {
+    openModalEvent(modalType, workoutPlan) {
+      this.modalType = modalType;
+      this.currentWorkoutPlan = workoutPlan;
+      this.activeModal = true;
+      eventBus.emit("openModal", {
+        modalType: modalType,
+        workoutPlan: workoutPlan,
+      });
+    },
+    closeModal() {
+      this.activeModal = false;
+      this.currentWorkoutPlan = ""; // Reset the workout plan when closing the modal
+      eventBus.emit("closeModal");
+    },
+  },
 };
 </script>
 
@@ -125,6 +191,18 @@ export default {
   position: relative;
   height: 100%;
 }
+
+.carousel-item:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
 .heading {
   display: flex;
   align-items: center;
@@ -185,5 +263,20 @@ export default {
   text-align: center;
   width: 100%;
   padding: 10px;
+}
+.my-workout {
+  padding-top: 30px;
+}
+.my-workouts-span {
+  padding-top: 50px;
+  margin: 20px;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+.add-new-button {
+  scale: 1.7;
+  color: #d29433;
 }
 </style>
