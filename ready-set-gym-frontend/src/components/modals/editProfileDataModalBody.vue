@@ -84,14 +84,18 @@ export default {
                 const res = await this.usersCollectionStore.updateUserData(
                     formData
                 );
-                console.log(res);
-                if (res.status === 200) {
+                console.log("edit RES:", res);
+                if (res.data.message !== "Old password doesn't match.") {
                     this.loading = false;
                     eventBus.emit("success", "Data updated successfully!");
                     const closeModalData = {
                         closeModal: true,
                     };
                     eventBus.emit("closeModal", closeModalData);
+                } else {
+                    console.log("WHAT THE FUCK");
+                    this.loading = false;
+                    alert("Old password doesn't match.");
                 }
             } catch (error) {
                 console.error(error.response);
