@@ -41,7 +41,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         async fetchUserData(email, password) {
             try {
                 const response = await axios.post(
-                    `${config.BACKEND_URL}/login`,
+                    `${config.BACKEND_URL}/auth/login`,
                     {
                         email,
                         password,
@@ -59,7 +59,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         async logoutUser() {
             try {
                 await axios.post(
-                    `${config.BACKEND_URL}/logout`,
+                    `${config.BACKEND_URL}/auth/logout`,
                     {},
                     { withCredentials: true }
                 );
@@ -70,7 +70,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         async registerUser(firstName, lastName, email, password) {
             try {
                 const response = await axios.post(
-                    `${config.BACKEND_URL}/users`,
+                    `${config.BACKEND_URL}/auth/signup`,
                     {
                         firstName,
                         lastName,

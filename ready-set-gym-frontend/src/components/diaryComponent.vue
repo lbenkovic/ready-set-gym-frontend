@@ -128,7 +128,7 @@ const addWeight = async () => {
         date: new Date().getTime(),
     });
     await weightCollectionStore.recordWeight(weightInput.value);
-    // updateChart();
+    updateChart();
     clearForm();
     eventBus.emit("success", "Weight recorded successfully!");
 };
@@ -136,7 +136,7 @@ const removeWeight = (dateToRemove) => {
     weights.value = weights.value.filter(
         (weight) => weight.date !== dateToRemove
     );
-    // updateChart();
+    updateChart();
 };
 
 watch(
@@ -194,13 +194,14 @@ watch(
     { deep: true }
 );
 
-// const updateChart = async () => {
-//     const res = await weightCollectionStore.updateChart();
-//     if (res) {
-//         weights.value = res.data.weights;
-//         renderChart(weights.value);
-//     }
-// };
+const updateChart = async () => {
+    const res = await weightCollectionStore.updateChart();
+    console.log("res", res);
+    if (res) {
+        weights.value = res;
+        renderChart(weights.value);
+    }
+};
 
 const renderChart = (weights) => {
     const ctx = weightChartEl.value.getContext("2d");
@@ -239,7 +240,7 @@ const renderChart = (weights) => {
     });
 };
 
-// onMounted(updateChart);
+onMounted(updateChart);
 </script>
 
 <style scoped>
