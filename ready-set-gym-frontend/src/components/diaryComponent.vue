@@ -196,7 +196,7 @@ watch(
 
 const updateChart = async () => {
     const res = await weightCollectionStore.updateChart();
-    console.log("res", res);
+    // console.log("res", res);
     if (res) {
         weights.value = res;
         renderChart(weights.value);

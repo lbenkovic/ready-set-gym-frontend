@@ -16,7 +16,7 @@ export const useUserDiaryCollectionStore = defineStore(
                     const response = await axios.get(`${BACKEND_URL}/diary`, {
                         withCredentials: true,
                     });
-                    console.log(response);
+                    // console.log(response);
                     return response.data.data.diaries;
                 } catch (error) {
                     this.handleError(error);

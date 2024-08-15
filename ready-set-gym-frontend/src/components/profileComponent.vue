@@ -124,7 +124,7 @@ export default {
     methods: {
         async getUserDiary() {
             const res = await this.userDiaryCollectionStore.getUserDiary();
-            console.log(res);
+            // console.log(res);
         },
         async openModal(modalType) {
             this.activeModal = true;
