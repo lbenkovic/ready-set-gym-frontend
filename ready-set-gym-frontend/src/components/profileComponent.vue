@@ -75,14 +75,24 @@ export default {
     mainModal,
     confirmationModal,
   },
+  data() {
+    return {
+      activeModal: false,
+      userFullName: "",
+      diaries: [],
+      userImage: "",
+      successMessage: "",
+      isModalVisible: false,
+    };
+  },
   setup() {
     const userDiaryCollectionStore = useUserDiaryCollectionStore();
     const usersCollectionStore = useUsersCollectionStore();
-    const userImage = ref("");
-    const userFullName = ref("");
-    const diaries = ref([]); // Koristimo ref za reaktivnu promenljivu
     const successMessage = ref("");
-    const isModalVisible = ref(false);
+
+    const userImage = ref("");
+
+    const diaries = ref([]); // Koristimo ref za reaktivnu promenljivu
 
     const fetchUserProfile = async () => {
       const response = await usersCollectionStore.getUserProfile();
@@ -92,10 +102,13 @@ export default {
         response.data.data &&
         response.data.data.user
       ) {
-        userFullName.value = `${response.data.data.user.firstName} ${response.data.data.user.lastName}`;
         userImage.value = response.data.data.user.imagePath || "";
       }
     };
+    // Slušanje događaja za ažuriranje slike
+    eventBus.on("updateUserImage", (newImagePath) => {
+      userImage.value = newImagePath;
+    });
 
     const fetchUserDiaries = async () => {
       const diariesResponse = await userDiaryCollectionStore.getUserDiary();
@@ -125,43 +138,86 @@ export default {
       }
     };
 
-    const logout = () => {
-      isModalVisible.value = true; // Show the custom confirmation modal
-    };
-
-    const handleLogout = () => {
-      isModalVisible.value = false;
-      usersCollectionStore.logoutUser().then(() => {
-        this.$router.push({ name: "login" });
-      });
-    };
-
-    const closeModal = () => {
-      isModalVisible.value = false;
-    };
-
     const formatDate = (dateString) => {
       const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
     return {
-      userFullName,
+      userDiaryCollectionStore,
+      usersCollectionStore,
       userImage,
       diaries,
-      successMessage,
-      isModalVisible,
-      fetchUserDiaries,
       deleteDiaryEntry,
-      logout,
-      handleLogout,
-      closeModal,
       formatDate,
+      successMessage,
     };
+  },
+  methods: {
+    async getUserDiary() {
+      const res = await this.userDiaryCollectionStore.getUserDiary();
+      // console.log(res);
+    },
+    async getUserProfile() {
+      const res = await this.usersCollectionStore.getUserProfile();
+      if (res && res.data && res.data.data && res.data.data.user) {
+        this.userFullName = `${res.data.data.user.firstName} ${res.data.data.user.lastName}`;
+        this.userImage = res.data.data.user.imagePath;
+      }
+    },
+    fetchNewUserData() {
+      eventBus.on("success", async () => {
+        await this.getUserProfile();
+        await this.getUserDiary();
+      });
+    },
+    async openModal(modalType) {
+      this.activeModal = true;
+      eventBus.emit("openModal", { modalType });
+    },
+    async openModal(modalType) {
+      this.activeModal = true;
+      eventBus.emit("openModal", { modalType });
+    },
+    async getUserProfile() {
+      const res = await this.usersCollectionStore.getUserProfile();
+      if (res && res.data && res.data.data && res.data.data.user) {
+        this.userFullName = `${res.data.data.user.firstName} ${res.data.data.user.lastName}`;
+        this.userImage = res.data.data.user.imagePath;
+      }
+    },
+    fetchNewUserData() {
+      eventBus.on("success", async () => {
+        await this.getUserProfile();
+        await this.getUserDiary();
+      });
+    },
+    async logout() {
+      this.isModalVisible = true; // Show the custom confirmation modal
+    },
+    handleLogout() {
+      this.isModalVisible = false;
+      this.usersCollectionStore.logoutUser().then(() => {
+        this.$router.push({ name: "login" });
+      });
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
   },
   created() {
     eventBus.on("closeModal", (data) => {
       if (data.closeModal) this.activeModal = false;
+    });
+    this.getUserProfile();
+    this.getUserDiary();
+    eventBus.on("updateUserImage", async (newImagePath) => {
+      console.log("Received new image path:", newImagePath);
+      this.userImage = newImagePath;
+      this.successMessage = "Profile picture updated successfully!";
+      setTimeout(() => {
+        this.successMessage = "";
+      }, 1500);
     });
   },
 };
