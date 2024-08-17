@@ -33,6 +33,20 @@ export const useWorkoutPlansCollectionStore = defineStore(
         });
         this.userWorkouts = response.data.data.workoutPlans;
       },
+      async deletePlan(planId) {
+        try {
+          const response = await axios.delete(
+            `${config.BACKEND_URL}/workout-plan/${planId}`,
+            {
+              withCredentials: true,
+            }
+          );
+          return response.data; // Return the response to check the deletion status
+        } catch (error) {
+          console.error("Error deleting plan:", error);
+          throw new Error("Failed to delete plan");
+        }
+      },
     },
   }
 );

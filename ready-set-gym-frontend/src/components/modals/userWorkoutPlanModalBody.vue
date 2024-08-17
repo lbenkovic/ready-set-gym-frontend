@@ -18,10 +18,15 @@
         <h4>{{ exercise.title }}</h4>
       </div>
     </div>
+    <div class="move-plan-container" type="button" @click="movePlan">
+      <span>DELETE PLAN</span>
+      <span class="material-symbols-outlined">delete</span>
+    </div>
   </div>
 </template>
 <script>
 import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
+import eventBus from "@/eventBus";
 
 export default {
   name: "userWorkoutPlanModalBody",
@@ -52,6 +57,32 @@ export default {
         }
       },
     },
+  },
+  methods: {
+    async movePlan() {
+      try {
+        const response = await this.workoutPlansCollectionStore.deletePlan(
+          this.workoutPlanData._id
+        );
+        if (response.message === "Plan deleted successfully.") {
+          eventBus.emit("planMoved", this.workoutPlanData._id);
+          this.closeModal(); // Close the modal in this component
+          eventBus.emit("closeModal"); // Emit an event to notify the parent component
+        } else {
+          console.error("Failed to delete plan:", response.message);
+        }
+      } catch (error) {
+        console.error("Error deleting plan:", error);
+      }
+    },
+    closeModal() {
+      eventBus.emit("closeModal");
+    },
+  },
+  created() {
+    eventBus.on("closeModal", () => {
+      this.closeModal();
+    });
   },
 };
 </script>
@@ -92,5 +123,21 @@ export default {
   width: 50%;
   max-height: 400px;
   object-fit: cover;
+}
+
+.move-plan-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  background-color: #d9534f; /* Red tone */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+.move-plan-container:hover {
+  background-color: #c9302c; /* Darker red on hover */
 }
 </style>

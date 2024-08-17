@@ -154,6 +154,7 @@
         </div>
       </div>
       <button
+        v-if="userWorkouts.length > 1"
         class="carousel-control-prev"
         type="button"
         data-bs-target="#carouselExampleIndicators"
@@ -163,6 +164,7 @@
         <span class="visually-hidden">Previous</span>
       </button>
       <button
+        v-if="userWorkouts.length > 1"
         class="carousel-control-next"
         type="button"
         data-bs-target="#carouselExampleIndicators"
@@ -178,12 +180,14 @@
       :modal-type="modalType"
       :workout-plan="currentWorkoutPlan"
     />
+    <userWorkoutPlanModalBody :activeModal="activeModal" />
   </div>
 </template>
 
 <script>
 import eventBus from "@/eventBus";
 import mainModal from "@/views/modalBody.vue";
+import userWorkoutPlanModalBody from "@/components/modals/userWorkoutPlanModalBody.vue";
 
 import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
 import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
@@ -201,6 +205,7 @@ export default {
   },
   components: {
     mainModal,
+    userWorkoutPlanModalBody,
   },
   setup() {
     const exerciseListCollectionStore = useExerciseLiseCollectionStore();
@@ -218,6 +223,12 @@ export default {
         this.activeModal = false;
         console.log("Modal status:", this.activeModal); // Should be false
       }
+    });
+    eventBus.on("planMoved", (planId) => {
+      this.userWorkouts = this.userWorkouts.filter(
+        (plan) => plan._id !== planId
+      );
+      this.activeModal = false;
     });
   },
   methods: {
