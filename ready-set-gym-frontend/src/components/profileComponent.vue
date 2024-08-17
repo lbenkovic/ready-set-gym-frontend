@@ -45,7 +45,64 @@
       </div>
     </div>
 
+    <!-- Carousel for Saved Recipes -->
+    <div class="saved-recipes-carousel">
+      <h2>Your Saved Recipes</h2>
+    </div>
+    <div v-if="recipes.length > 0" class="carousel-container">
+      <div id="recipeCarousel" class="carousel slide carousel-custom">
+        <div class="carousel-indicators">
+          <button
+            v-for="(recipe, index) in recipes"
+            :key="'indicator-' + index"
+            type="button"
+            :data-bs-target="'#recipeCarousel'"
+            :data-bs-slide-to="index"
+            :class="{ active: index === 0 }"
+            :aria-current="index === 0 ? 'true' : 'false'"
+            :aria-label="'Slide ' + (index + 1)"
+          ></button>
+        </div>
+        <div class="carousel-inner">
+          <div
+            v-for="(recipe, index) in recipes"
+            :key="'item-' + index"
+            :class="['carousel-item', { active: index === 0 }]"
+            @click="showRecipeDetails('recipe-detail-modal', recipe)"
+          >
+            <img
+              :src="recipe.recipe.strMealThumb"
+              class="d-block w-100"
+              :alt="recipe.recipe.strMeal"
+            />
+            <div class="carousel-caption d-none d-md-block">
+              <h5>{{ recipe.recipe.strMeal }}</h5>
+            </div>
+          </div>
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#recipeCarousel"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#recipeCarousel"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+
     <mainModal :active-modal="activeModal" :key="activeModal" />
+    <recipeDetailModal :activeModal="activeModal" />
 
     <!-- Toast for success message -->
     <div v-if="successMessage" class="toast">
@@ -66,14 +123,18 @@ import eventBus from "@/eventBus";
 import mainModal from "@/views/modalBody.vue";
 import { useUserDiaryCollectionStore } from "@/stores/userDiaryCollectionStore";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import confirmationModal from "@/components/modals/confirmationModal.vue";
+import { useRecipesAPIStore } from "@/stores/recipesAPIStore";
+import bootstrap from "bootstrap";
+import recipeDetailModal from "@/components/modals/recipeDetailModal.vue";
 
 export default {
   name: "profileComponent",
   components: {
     mainModal,
     confirmationModal,
+    recipeDetailModal,
   },
   data() {
     return {
@@ -88,11 +149,12 @@ export default {
   setup() {
     const userDiaryCollectionStore = useUserDiaryCollectionStore();
     const usersCollectionStore = useUsersCollectionStore();
+    const recipesAPIStore = useRecipesAPIStore();
     const successMessage = ref("");
-
     const userImage = ref("");
-
-    const diaries = ref([]); // Koristimo ref za reaktivnu promenljivu
+    const diaries = ref([]);
+    const recipesAPI = useRecipesAPIStore();
+    const recipes = ref([]);
 
     const fetchUserProfile = async () => {
       const response = await usersCollectionStore.getUserProfile();
@@ -116,10 +178,37 @@ export default {
         diaries.value = diariesResponse; // Setujemo diaries sa reaktivnim ref
       }
     };
+    const fetchUserRecipes = async () => {
+      try {
+        const response = await recipesAPI.fetchUsersRecipes();
+        console.log(response); // Log the response to see its structure
+        if (
+          response &&
+          response.data &&
+          response.data.data &&
+          response.data.data.recipes
+        ) {
+          recipes.value = response.data.data.recipes.map((recipe) => {
+            // Ensure recipe.recipe is a string before parsing
+            const recipeData =
+              typeof recipe.recipe === "string"
+                ? JSON.parse(recipe.recipe)
+                : recipe.recipe;
+            return {
+              ...recipe,
+              recipe: recipeData,
+            };
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user recipes:", error);
+      }
+    };
 
     onMounted(() => {
       fetchUserProfile();
-      fetchUserDiaries(); // Fetch user diaries on component mount
+      fetchUserDiaries();
+      fetchUserRecipes();
     });
 
     // Slušanje događaja za ažuriranje slike
@@ -151,6 +240,7 @@ export default {
       deleteDiaryEntry,
       formatDate,
       successMessage,
+      recipes,
     };
   },
   methods: {
@@ -179,6 +269,7 @@ export default {
       this.activeModal = true;
       eventBus.emit("openModal", { modalType });
     },
+
     async getUserProfile() {
       const res = await this.usersCollectionStore.getUserProfile();
       if (res && res.data && res.data.data && res.data.data.user) {
@@ -204,10 +295,17 @@ export default {
     closeModal() {
       this.isModalVisible = false;
     },
+    showRecipeDetails(modalType, recipe) {
+      this.activeModal = true;
+      eventBus.emit("openRecipeModal", { recipe });
+    },
   },
   created() {
     eventBus.on("closeModal", (data) => {
       if (data.closeModal) this.activeModal = false;
+    });
+    eventBus.on("recipeMoved", (recipeId) => {
+      this.recipes = this.recipes.filter((recipe) => recipe._id !== recipeId);
     });
     this.getUserProfile();
     this.getUserDiary();
@@ -218,6 +316,11 @@ export default {
       setTimeout(() => {
         this.successMessage = "";
       }, 1500);
+    });
+    eventBus.on("openRecipeModal", (data) => {
+      console.log("Received recipe data:", data.recipe); // Verify data
+      this.recipe = data.recipe;
+      this.activeModal = true;
     });
   },
 };
@@ -330,7 +433,9 @@ export default {
   z-index: 9999;
 }
 .my-diaries {
-  margin-top: 20px;
+  margin-top: 100px;
+  padding: 0 10vx;
+  text-align: center;
 }
 
 .diary-entry {
@@ -339,6 +444,9 @@ export default {
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 15px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .diary-date {
@@ -362,5 +470,55 @@ export default {
 
 .delete-btn:hover {
   background-color: #ff0000;
+}
+.carousel-container {
+  display: flex;
+  justify-content: center; /* Center the carousel container horizontally */
+  margin-top: 20px;
+}
+
+.carousel {
+  max-width: 300px; /* Set the max-width to match the homepage carousel */
+  margin: 0 auto; /* Center the carousel within the container */
+}
+
+.carousel-item {
+  object-fit: cover;
+  width: 100%; /* Ensure the image fills the container */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.carousel-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  background: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Add a semi-transparent background for better readability */
+  border-radius: 8px; /* Optional: Add some border radius to the caption background */
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  filter: invert(1); /* Optional: Adjust the color of the carousel controls */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: #000; /* Optional: Adjust the background color of the icons */
+  border-radius: 50%; /* Optional: Make the background of the icons circular */
+}
+.saved-recipes-carousel {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>
