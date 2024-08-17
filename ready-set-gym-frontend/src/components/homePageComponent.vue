@@ -131,6 +131,48 @@
         add_box
       </span>
     </div>
+    <div
+      id="carouselExampleIndicators"
+      class="carousel slide carousel-custom-my-workout"
+    >
+      <div class="carousel-inner">
+        <div
+          class="carousel-item"
+          :class="{ active: index === 0 }"
+          v-for="(plan, index) in userWorkouts"
+          :key="plan._id"
+          @click="openModalEvent('user-workout-plan', plan._id), openModal()"
+        >
+          <img
+            class="d-block w-100 carousel-image"
+            :src="plan.titleImagePath"
+            :alt="plan.planName"
+          />
+          <div class="carousel-caption-my-workout d-none d-md-block">
+            <h5>{{ plan.planName }}</h5>
+          </div>
+        </div>
+      </div>
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#carouselExampleIndicators"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#carouselExampleIndicators"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
     <mainModal
       :active-modal="activeModal"
       :modal-type="modalType"
@@ -144,6 +186,7 @@ import eventBus from "@/eventBus";
 import mainModal from "@/views/modalBody.vue";
 
 import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
+import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
 
 export default {
   name: "homePageComponent",
@@ -153,6 +196,7 @@ export default {
       currentWorkoutPlan: "", // Variable to keep track of the current workout plan
       modalType: "recommended-workout-plan",
       searchText: "",
+      userWorkouts: [],
     };
   },
   components: {
@@ -160,9 +204,14 @@ export default {
   },
   setup() {
     const exerciseListCollectionStore = useExerciseLiseCollectionStore();
-    return { exerciseListCollectionStore };
+    const workoutPlansCollectionStore = useWorkoutPlansCollectionStore();
+    return { exerciseListCollectionStore, workoutPlansCollectionStore };
   },
   async created() {
+    await this.workoutPlansCollectionStore.fetchUserWorkouts();
+    this.fetchExerciseList();
+    this.fetchUserWorkouts();
+    this.fetchNewUserWorkouts();
     eventBus.on("closeModal", (closeModalData) => {
       if (closeModalData.closeModal) {
         console.log("Closing modal..."); // Debug output
@@ -173,6 +222,7 @@ export default {
   },
   methods: {
     openModalEvent(modalType, workoutPlan) {
+      console.log("Opening modal for workout plan ID:", workoutPlan);
       this.modalType = modalType;
       this.currentWorkoutPlan = workoutPlan;
       this.activeModal = true;
@@ -180,6 +230,23 @@ export default {
         modalType: modalType,
         workoutPlan: workoutPlan,
       });
+    },
+    openModal() {
+      this.activeModal = !this.activeModal;
+    },
+    fetchUserWorkouts() {
+      this.userWorkouts = this.workoutPlansCollectionStore.getAllUserWorkouts;
+      console.log("User Workouts:", this.userWorkouts);
+    },
+    fetchNewUserWorkouts() {
+      eventBus.on("success", async () => {
+        await this.workoutPlansCollectionStore.fetchUserWorkouts();
+        this.fetchUserWorkouts();
+      });
+    },
+    async fetchExerciseList() {
+      const res = await this.exerciseListCollectionStore.getExercises();
+      this.exerciseList = res.data;
     },
   },
 };
@@ -277,5 +344,29 @@ export default {
 .add-new-button {
   scale: 1.7;
   color: #d29433;
+}
+
+.carousel-custom-my-workout {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.carousel-caption-my-workout {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  background: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Semi-transparent background for readability */
+  border-radius: 8px; /* Add border radius for rounded corners */
 }
 </style>
