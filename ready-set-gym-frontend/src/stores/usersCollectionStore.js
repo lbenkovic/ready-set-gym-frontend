@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import config from "../../config.json";
 
 import axios from "axios";
-import { withDirectives } from "vue";
 
 export const useUsersCollectionStore = defineStore("usersCollectionStore", {
     state: () => ({}),
