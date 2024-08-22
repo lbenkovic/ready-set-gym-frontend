@@ -1,18 +1,20 @@
 <template>
   <div class="main-container">
-    <div class="heading">
+    <header class="heading">
       <img
         class="heading-img"
         src="@/assets/logorsg.jpg"
         alt="Logo"
         @click="navigateHome"
       />
-    </div>
-    <div class="main">
-      <div class="title">
-        <h1>My progress</h1>
-      </div>
-      <div class="form-group">
+    </header>
+
+    <main class="main">
+      <section class="title">
+        <h1>My Progress</h1>
+      </section>
+
+      <section class="form-group">
         <label for="datePicker" class="form-label">Select a Date:</label>
         <input
           id="datePicker"
@@ -20,8 +22,9 @@
           v-model="date"
           class="form-control"
         />
-      </div>
-      <div class="form-group">
+      </section>
+
+      <section class="form-group">
         <label for="diaryEntry" class="form-label">Diary Entry:</label>
         <textarea
           id="diaryEntry"
@@ -34,8 +37,9 @@
           <button @click="clearForm" class="btn btn-danger">Clear</button>
           <button @click="saveEntry" class="btn btn-success">Save</button>
         </div>
-      </div>
-      <div class="form-group">
+      </section>
+
+      <section class="form-group">
         <label for="weightInput" class="form-label">Enter Weight (kg):</label>
         <input
           id="weightInput"
@@ -47,11 +51,12 @@
         <button @click="addWeight" class="btn btn-success">
           Record Weight
         </button>
-      </div>
-      <div v-if="weights.length > 0" class="weight-progress">
-        <div class="weight-progress-header">
-          <h2 class="title">Weight Progress</h2>
-        </div>
+      </section>
+
+      <section v-if="weights.length > 0" class="weight-progress">
+        <header class="weight-progress-header">
+          <h2>Weight Progress</h2>
+        </header>
         <div class="canvas-box">
           <canvas ref="weightChartEl"></canvas>
         </div>
@@ -63,13 +68,13 @@
               :key="weight.date"
               @click="removeWeight(weight.date)"
             >
-              <span>{{ weight.weight }}kg</span>
+              <span>{{ weight.weight }} kg</span>
               <small>{{ new Date(weight.date).toLocaleDateString() }}</small>
             </li>
           </ul>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 </template>
 
@@ -90,10 +95,6 @@ const weightChart = ref(null);
 
 const userDiaryCollectionStore = useUserDiaryCollectionStore();
 const weightCollectionStore = useWeightCollectionStore();
-
-const currentWeight = computed(() => {
-  return weights.value.sort((a, b) => b.date - a.date)[0] || { weight: 0 };
-});
 
 const clearForm = () => {
   date.value = "";
@@ -201,62 +202,101 @@ onMounted(() => {
 <style scoped>
 .main-container {
   padding: 1rem;
+  background: #f7f7f7;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 2rem auto;
+  background: linear-gradient(135deg, #ff6f00, #d29433);
 }
 
 .heading {
-  margin: 0;
-  padding: 1vw 5vw 0 2vw;
-  height: 7vh;
-  background-color: #000;
+  padding: 1rem 5%;
+  background: linear-gradient(135deg, #ff6f00, #d29433);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .heading-img {
-  height: 7vh;
-  width: auto;
+  height: 60px;
   cursor: pointer;
 }
 
-.title {
-  text-align: center;
+.main {
   margin-top: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.title h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #444;
+  font-size: 1.75rem;
 }
 
 .form-group {
-  margin: 2rem auto;
-  max-width: 450px;
+  margin: 1.5rem auto;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .form-label {
   font-family: "Lucida Sans", Geneva, Verdana, sans-serif;
-  font-size: medium;
-  color: #838383;
+  font-size: 1rem;
+  color: #555;
   margin-bottom: 0.5rem;
 }
 
 .form-control {
-  background-color: bisque;
-  text-align: center;
-  padding: 0.5rem;
-  border-radius: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  border-radius: 8px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .button-group {
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
   margin-top: 1rem;
   width: 100%;
 }
 
 .btn {
-  border-radius: 10px;
-  width: 48%;
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+}
+
+.btn-success {
+  background-color: #28a745;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 #weightInput,
@@ -265,7 +305,7 @@ onMounted(() => {
 }
 
 .weight-progress {
-  margin-top: 3rem;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -273,65 +313,71 @@ onMounted(() => {
 
 .weight-progress-header {
   margin-bottom: 1rem;
+  text-align: center;
+}
+.weight-progress-header h2 {
+  color: #444;
 }
 
 .canvas-box {
   width: 100%;
-  max-width: 720px;
-  background-color: bisque;
+  max-width: 700px;
+  background-color: #fff;
   padding: 1rem;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
 }
 
 .canvas-box canvas {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 300px;
 }
 
 .weight-history {
   width: 100%;
-  max-width: 720px;
+  max-width: 700px;
+}
+.weight-history h2 {
+  color: #444;
 }
 
 .weight-history ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .weight-history ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
 }
 
 .weight-history ul li:nth-child(even) {
-  background-color: #dfdfdf;
+  background-color: #f9f9f9;
 }
 
 .weight-history ul li:hover {
-  background-color: #f8f8f8;
-}
-
-.weight-history ul li:last-of-type {
-  border-bottom: none;
+  background-color: #f1f1f1;
 }
 
 .weight-history ul li span {
-  display: block;
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-right: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #444;
 }
 
 .weight-history ul li small {
-  color: #888;
+  color: #777;
   font-style: italic;
 }
 </style>

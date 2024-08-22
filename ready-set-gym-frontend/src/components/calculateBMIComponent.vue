@@ -4,13 +4,13 @@
       <img
         class="heading-img"
         src="@/assets/logorsg.jpg"
-        alt=""
+        alt="Logo"
         @click="navigateHome"
       />
     </header>
     <main class="main">
       <section class="gender">
-        <h1 class="naslov">BMI CALCULATOR</h1>
+        <h1 class="title">BMI CALCULATOR</h1>
         <div class="gender-buttons">
           <button
             @click="selectGender('male')"
@@ -34,19 +34,19 @@
             v-model="height"
             type="number"
             placeholder="Height (cm)"
-            class="form-control height"
+            class="form-control"
           />
           <input
             v-model="weight"
             type="number"
             placeholder="Weight (kg)"
-            class="form-control weight"
+            class="form-control"
           />
           <input
             v-model="age"
             type="number"
             placeholder="Age"
-            class="form-control age"
+            class="form-control"
           />
         </div>
         <button class="btn btn-success" @click="calculateBMI">Calculate</button>
@@ -113,29 +113,32 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .heading {
   margin: 0;
   padding: 1vw 5vw 0 2vw;
-  height: 7vh;
+  height: 9vh;
   background-color: #000;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .heading-img {
   height: 7vh;
   width: auto;
+  cursor: pointer;
 }
 
 .main {
-  background-color: black;
+  background-color: #121212;
   margin: 0;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 93vh;
 }
 
 .gender {
@@ -148,22 +151,30 @@ export default {
 
 .gender-buttons {
   display: flex;
-  flex-direction: row;
   gap: 30px;
 }
+
 .gender-btn {
   height: 100px;
   width: 100px;
-  border-radius: 20px;
+  border-radius: 50%;
   background-color: #d29433;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gender-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .gender-icon {
   font-size: 3rem;
+  color: white;
 }
 
 .btn-active-male {
@@ -194,16 +205,27 @@ export default {
 }
 
 .form-control {
-  background-color: #d29433;
+  background-color: #2c2c2c;
   max-width: 300px;
   width: 100%;
-  padding: 20px;
-  border-radius: 20px;
+  padding: 15px;
+  border-radius: 15px;
   text-align: center;
-  margin: 5px;
+  margin: 10px;
   color: white;
-  border: none;
-  box-sizing: border-box;
+  border: 2px solid #d29433;
+  box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+.form-control::placeholder {
+  color: #b0b0b0; /* Lighter color for placeholder */
+  opacity: 1; /* Ensure visibility */
+}
+
+.form-control:focus {
+  border-color: #ffc107;
+  outline: none;
 }
 
 .btn {
@@ -213,6 +235,8 @@ export default {
   border-radius: 20px;
   padding: 10px;
   margin: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .btn-success {
@@ -220,8 +244,15 @@ export default {
   color: white;
 }
 
-.naslov {
-  color: aliceblue;
+.btn-success:hover {
+  background-color: #218838;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  color: #ffc107;
+  font-size: 2rem;
+  margin-bottom: 10px;
 }
 
 .result {
@@ -237,6 +268,8 @@ export default {
 }
 
 .message {
-  color: rgb(222, 174, 43);
+  color: #ffc107;
+  margin-top: 10px;
+  font-size: 1rem;
 }
 </style>
