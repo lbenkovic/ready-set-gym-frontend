@@ -14,14 +14,49 @@
             class="form-control search-bar"
             placeholder="Search"
             v-model="searchText"
+            @input="handleInput"
           />
         </div>
       </div>
-      <div class="recommended-workout">
+      <!-- Korisnici prikazani nakon pretrage -->
+      <div v-if="searchText && searchResults.length > 0" class="search-results">
+        <ul>
+          <li v-for="user in searchResults" :key="user._id">
+            {{ user.firstName }} {{ user.lastName }}
+            <button
+              :class="{
+                accepted: isFriend(user.email),
+                pending: isRequestPending(user.email),
+                default: !isRequestPending(user.email) && !isFriend(user.email),
+              }"
+              :disabled="isFriend(user.email)"
+              @click="
+                isRequestPending(user.email)
+                  ? cancelRequest(user.email)
+                  : addFriend(user.email)
+              "
+            >
+              {{
+                isFriend(user.email)
+                  ? "Accepted"
+                  : isRequestPending(user.email)
+                  ? "Cancel"
+                  : "Add GymBro"
+              }}
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="recommended-workout" v-if="!searchText">
         <h1>RECOMMENDED WORKOUTS</h1>
       </div>
 
-      <div id="carouselExampleCaptions" class="carousel slide carousel-custom">
+      <div
+        id="carouselExampleCaptions"
+        class="carousel slide carousel-custom"
+        v-if="!searchText"
+      >
         <div class="carousel-indicators">
           <button
             type="button"
@@ -120,7 +155,7 @@
         </button>
       </div>
     </div>
-    <div class="my-workout" v-if="searchText === ''">
+    <div class="my-workout" v-if="!searchText">
       <span class="my-workouts-span">CREATE YOUR OWN WORKOUT</span>
       &nbsp;&nbsp;&nbsp;
       <span
@@ -134,6 +169,7 @@
     <div
       id="carouselExampleIndicators"
       class="carousel slide carousel-custom-my-workout"
+      v-if="!searchText"
     >
       <div class="carousel-inner">
         <div
@@ -191,6 +227,9 @@ import userWorkoutPlanModalBody from "@/components/modals/userWorkoutPlanModalBo
 
 import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
 import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
+import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
+import { useFriendsStore } from "@/stores/friendsStore";
+import { debounce } from "lodash";
 
 export default {
   name: "homePageComponent",
@@ -201,6 +240,8 @@ export default {
       modalType: "recommended-workout-plan",
       searchText: "",
       userWorkouts: [],
+      query: "",
+      debounceTimer: null,
     };
   },
   components: {
@@ -210,13 +251,26 @@ export default {
   setup() {
     const exerciseListCollectionStore = useExerciseLiseCollectionStore();
     const workoutPlansCollectionStore = useWorkoutPlansCollectionStore();
-    return { exerciseListCollectionStore, workoutPlansCollectionStore };
+    const usersCollectionStore = useUsersCollectionStore();
+    const friendsStore = useFriendsStore();
+    const isFriend = (email) => friendsStore.isFriend(email);
+    const isRequestPending = (email) => friendsStore.isRequestPending(email);
+
+    return {
+      exerciseListCollectionStore,
+      workoutPlansCollectionStore,
+      usersCollectionStore,
+      friendsStore,
+      isFriend,
+      isRequestPending,
+    };
   },
   async created() {
     await this.workoutPlansCollectionStore.fetchUserWorkouts();
     this.fetchExerciseList();
     this.fetchUserWorkouts();
     this.fetchNewUserWorkouts();
+    await this.friendsStore.fetchRequests();
     eventBus.on("closeModal", (closeModalData) => {
       if (closeModalData.closeModal) {
         console.log("Closing modal..."); // Debug output
@@ -258,6 +312,49 @@ export default {
     async fetchExerciseList() {
       const res = await this.exerciseListCollectionStore.getExercises();
       this.exerciseList = res.data;
+    },
+    handleInput() {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(() => {
+        this.sendApiRequest();
+      }, 500);
+    },
+    async sendApiRequest() {
+      if (this.searchText.trim()) {
+        await this.usersCollectionStore.searchUsers(this.searchText.trim());
+      } else {
+        this.usersCollectionStore.searchResults = [];
+      }
+    },
+    async addFriend(email) {
+      if (
+        !this.friendsStore.isRequestSent(email) &&
+        !this.friendsStore.isFriend(email)
+      ) {
+        try {
+          await this.friendsStore.sendFriendRequest(email);
+          console.log("Request sent for:", email);
+          // No need to force update if Vue reactivity works
+        } catch (error) {
+          console.error("Error adding friend:", error);
+        }
+      }
+    },
+    async cancelRequest(email) {
+      if (this.friendsStore.isRequestPending(email)) {
+        try {
+          await this.friendsStore.cancelRequest(email);
+          console.log("Request canceled for:", email);
+          // No need to force update if Vue reactivity works
+        } catch (error) {
+          console.error("Error canceling request:", error);
+        }
+      }
+    },
+  },
+  computed: {
+    searchResults() {
+      return this.usersCollectionStore.searchResults;
     },
   },
 };
@@ -379,5 +476,48 @@ export default {
     0.5
   ); /* Semi-transparent background for readability */
   border-radius: 8px; /* Add border radius for rounded corners */
+}
+.search-results {
+  margin-top: 20px;
+}
+
+.search-results ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.search-results li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.search-results button {
+  background-color: #d29433;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.search-results button.accepted {
+  background-color: #28a745; /* Green for accepted */
+  color: white;
+}
+
+.search-results button.pending {
+  background-color: #dc3545; /* Red for pending */
+  color: white;
+}
+
+.search-results button.default {
+  background-color: #d29433; /* Default color */
+  color: white;
+}
+
+.search-results button[disabled] {
+  background-color: #28a745;
+  cursor: not-allowed;
 }
 </style>

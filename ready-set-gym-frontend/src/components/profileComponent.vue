@@ -12,6 +12,26 @@
       <h1>My Profile</h1>
     </div>
 
+    <div class="pending-requests">
+      <h2>Pending Requests</h2>
+      <div v-if="pendingRequests.length > 0">
+        <div
+          v-for="(request, index) in pendingRequests"
+          :key="index"
+          class="request-item"
+        >
+          <p class="request-text">{{ request }}</p>
+          <button @click="acceptRequest(request)" class="accept-btn">
+            Accept
+          </button>
+          <button @click="denyRequest(request)" class="deny-btn">Deny</button>
+        </div>
+      </div>
+      <div v-else>
+        <p>No pending requests.</p>
+      </div>
+    </div>
+
     <div class="user-profile-img">
       <span
         class="material-symbols-outlined profile-pic"
@@ -26,6 +46,35 @@
       <h2 style="margin-top: 20px" @click="openModal('edit-profile-data')">
         {{ userFullName }}
       </h2>
+    </div>
+
+    <!-- GymBros Button -->
+    <div class="gym-bros-section">
+      <button @click="toggleGymBrosModal" class="gym-bros-btn">
+        Look for MyGymBros
+      </button>
+    </div>
+
+    <!-- GymBros Modal -->
+    <div v-if="isGymBrosModalVisible" class="gym-bros-modal">
+      <h2>GymBros</h2>
+      <div v-if="gymBros.length > 0">
+        <ul class="gym-bros-list">
+          <li v-for="bro in gymBros" :key="bro" class="gym-bros-item">
+            {{ bro }}
+            <span
+              class="material-symbols-outlined chat-icon"
+              @click="startChat(bro)"
+            >
+              chat
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No GymBros found.</p>
+      </div>
+      <button @click="toggleGymBrosModal" class="close-btn">Close</button>
     </div>
 
     <!-- Display Diaries -->
@@ -128,6 +177,7 @@ import confirmationModal from "@/components/modals/confirmationModal.vue";
 import { useRecipesAPIStore } from "@/stores/recipesAPIStore";
 import bootstrap from "bootstrap";
 import recipeDetailModal from "@/components/modals/recipeDetailModal.vue";
+import { useFriendsStore } from "@/stores/friendsStore";
 
 export default {
   name: "profileComponent",
@@ -144,6 +194,9 @@ export default {
       userImage: "",
       successMessage: "",
       isModalVisible: false,
+      pendingRequests: [],
+      isGymBrosModalVisible: false, // Kontroliše vidljivost modala
+      gymBros: [], // Lista prihvaćenih prijatelja
     };
   },
   setup() {
@@ -155,6 +208,32 @@ export default {
     const diaries = ref([]);
     const recipesAPI = useRecipesAPIStore();
     const recipes = ref([]);
+    const friendsStore = useFriendsStore();
+    const pendingRequests = ref([]);
+    const fetchPendingRequests = async () => {
+      await friendsStore.fetchRequests();
+      pendingRequests.value = friendsStore.pendingRequests;
+    };
+
+    const acceptRequest = async (email) => {
+      try {
+        await friendsStore.acceptRequest(email); // Add this method in friendsStore
+        await fetchPendingRequests(); // Refresh the requests
+        alert("Request accepted!");
+      } catch (error) {
+        console.error("Error accepting request:", error);
+      }
+    };
+
+    const denyRequest = async (email) => {
+      try {
+        await friendsStore.denyRequest(email); // Add this method in friendsStore
+        await fetchPendingRequests(); // Refresh the requests
+        alert("Request denied!");
+      } catch (error) {
+        console.error("Error denying request:", error);
+      }
+    };
 
     const fetchUserProfile = async () => {
       const response = await usersCollectionStore.getUserProfile();
@@ -209,6 +288,7 @@ export default {
       fetchUserProfile();
       fetchUserDiaries();
       fetchUserRecipes();
+      fetchPendingRequests();
     });
 
     // Slušanje događaja za ažuriranje slike
@@ -241,9 +321,27 @@ export default {
       formatDate,
       successMessage,
       recipes,
+      pendingRequests,
+      acceptRequest,
+      denyRequest,
     };
   },
   methods: {
+    toggleGymBrosModal() {
+      this.isGymBrosModalVisible = !this.isGymBrosModalVisible;
+      if (this.isGymBrosModalVisible) {
+        this.fetchGymBros();
+      }
+    },
+    async fetchGymBros() {
+      try {
+        const friendsStore = useFriendsStore();
+        await friendsStore.fetchRequests();
+        this.gymBros = friendsStore.acceptedRequests;
+      } catch (error) {
+        console.error("Error fetching GymBros:", error);
+      }
+    },
     async getUserDiary() {
       const res = await this.userDiaryCollectionStore.getUserDiary();
       // console.log(res);
@@ -355,7 +453,9 @@ export default {
 }
 .page-name,
 .my-diaries,
-.my-profile {
+.my-profile,
+.pending-requests,
+.gym-bros-section {
   width: 100%;
   padding-left: 2.25vw;
   padding-top: 1vw;
@@ -520,5 +620,132 @@ export default {
 .saved-recipes-carousel {
   margin-top: 20px;
   text-align: center;
+}
+.pending-requests {
+  margin-top: 20px;
+}
+
+.request-item {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #3b3737;
+}
+
+.request-text {
+  flex-grow: 1;
+  margin: 0;
+}
+
+.accept-btn,
+.deny-btn {
+  border: none;
+  border-radius: 5px;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.accept-btn {
+  background-color: #28a745;
+  margin-right: 10px;
+}
+
+.accept-btn:hover {
+  background-color: #218838;
+}
+
+.deny-btn {
+  background-color: #dc3545;
+}
+
+.deny-btn:hover {
+  background-color: #c82333;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #28a745;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 9999;
+}
+.gym-bros-btn {
+  background-color: #d29433;
+  color: white;
+  padding: 10px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.gym-bros-btn:hover {
+  background-color: #7e591d;
+}
+
+.gym-bros-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #3b3737;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.gym-bros-list {
+  list-style: none;
+  padding: 0;
+}
+
+.gym-bros-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-icon {
+  font-size: 24px;
+  color: #d29433;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.chat-icon:hover {
+  color: #7e591d;
+}
+
+.close-btn {
+  background-color: #d29433;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.close-btn:hover {
+  background-color: #7e591d;
 }
 </style>
