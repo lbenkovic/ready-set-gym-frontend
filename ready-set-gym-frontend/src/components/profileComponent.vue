@@ -46,6 +46,18 @@
       <h2 style="margin-top: 20px" @click="openModal('edit-profile-data')">
         {{ userFullName }}
       </h2>
+      <!-- Chat Icon and Speech Bubble -->
+      <div class="chat-container">
+        <div v-if="showWelcomeMessage" class="welcome-message">
+          <p>How can I help you?</p>
+        </div>
+        <span
+          class="material-symbols-outlined chat-icon"
+          @click="navigateToChatbot"
+        >
+          chat
+        </span>
+      </div>
     </div>
 
     <!-- GymBros Button -->
@@ -170,14 +182,13 @@
 <script>
 import eventBus from "@/eventBus";
 import mainModal from "@/views/modalBody.vue";
+import recipeDetailModal from "@/components/modals/recipeDetailModal.vue";
+import confirmationModal from "@/components/modals/confirmationModal.vue";
 import { useUserDiaryCollectionStore } from "@/stores/userDiaryCollectionStore";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
-import { onMounted, ref, watch, nextTick } from "vue";
-import confirmationModal from "@/components/modals/confirmationModal.vue";
 import { useRecipesAPIStore } from "@/stores/recipesAPIStore";
-import bootstrap from "bootstrap";
-import recipeDetailModal from "@/components/modals/recipeDetailModal.vue";
 import { useFriendsStore } from "@/stores/friendsStore";
+import { onMounted, ref } from "vue";
 
 export default {
   name: "profileComponent",
@@ -195,8 +206,8 @@ export default {
       successMessage: "",
       isModalVisible: false,
       pendingRequests: [],
-      isGymBrosModalVisible: false, // Kontroliše vidljivost modala
-      gymBros: [], // Lista prihvaćenih prijatelja
+      isGymBrosModalVisible: false,
+      gymBros: [],
     };
   },
   setup() {
@@ -210,6 +221,8 @@ export default {
     const recipes = ref([]);
     const friendsStore = useFriendsStore();
     const pendingRequests = ref([]);
+    const showWelcomeMessage = ref(true);
+
     const fetchPendingRequests = async () => {
       await friendsStore.fetchRequests();
       pendingRequests.value = friendsStore.pendingRequests;
@@ -217,8 +230,8 @@ export default {
 
     const acceptRequest = async (email) => {
       try {
-        await friendsStore.acceptRequest(email); // Add this method in friendsStore
-        await fetchPendingRequests(); // Refresh the requests
+        await friendsStore.acceptRequest(email);
+        await fetchPendingRequests();
         alert("Request accepted!");
       } catch (error) {
         console.error("Error accepting request:", error);
@@ -227,8 +240,8 @@ export default {
 
     const denyRequest = async (email) => {
       try {
-        await friendsStore.denyRequest(email); // Add this method in friendsStore
-        await fetchPendingRequests(); // Refresh the requests
+        await friendsStore.denyRequest(email);
+        await fetchPendingRequests();
         alert("Request denied!");
       } catch (error) {
         console.error("Error denying request:", error);
@@ -246,7 +259,7 @@ export default {
         userImage.value = response.data.data.user.imagePath || "";
       }
     };
-    // Slušanje događaja za ažuriranje slike
+
     eventBus.on("updateUserImage", (newImagePath) => {
       userImage.value = newImagePath;
     });
@@ -254,13 +267,13 @@ export default {
     const fetchUserDiaries = async () => {
       const diariesResponse = await userDiaryCollectionStore.getUserDiary();
       if (diariesResponse) {
-        diaries.value = diariesResponse; // Setujemo diaries sa reaktivnim ref
+        diaries.value = diariesResponse;
       }
     };
     const fetchUserRecipes = async () => {
       try {
         const response = await recipesAPI.fetchUsersRecipes();
-        console.log(response); // Log the response to see its structure
+        console.log(response);
         if (
           response &&
           response.data &&
@@ -268,7 +281,6 @@ export default {
           response.data.data.recipes
         ) {
           recipes.value = response.data.data.recipes.map((recipe) => {
-            // Ensure recipe.recipe is a string before parsing
             const recipeData =
               typeof recipe.recipe === "string"
                 ? JSON.parse(recipe.recipe)
@@ -289,9 +301,11 @@ export default {
       fetchUserDiaries();
       fetchUserRecipes();
       fetchPendingRequests();
+      setTimeout(() => {
+        showWelcomeMessage.value = false;
+      }, 5000);
     });
 
-    // Slušanje događaja za ažuriranje slike
     eventBus.on("updateUserImage", (newImagePath) => {
       userImage.value = newImagePath;
     });
@@ -324,6 +338,7 @@ export default {
       pendingRequests,
       acceptRequest,
       denyRequest,
+      showWelcomeMessage,
     };
   },
   methods: {
@@ -344,7 +359,6 @@ export default {
     },
     async getUserDiary() {
       const res = await this.userDiaryCollectionStore.getUserDiary();
-      // console.log(res);
     },
     async getUserProfile() {
       const res = await this.usersCollectionStore.getUserProfile();
@@ -382,7 +396,7 @@ export default {
       });
     },
     async logout() {
-      this.isModalVisible = true; // Show the custom confirmation modal
+      this.isModalVisible = true;
     },
     handleLogout() {
       this.isModalVisible = false;
@@ -396,6 +410,13 @@ export default {
     showRecipeDetails(modalType, recipe) {
       this.activeModal = true;
       eventBus.emit("openRecipeModal", { recipe });
+    },
+    startChat(email) {
+      console.log("Navigating to chat with:", email);
+      this.$router.push({ name: "chatPage", params: { userEmail: email } });
+    },
+    navigateToChatbot() {
+      this.$router.push("/chatbot");
     },
   },
   created() {
@@ -573,19 +594,19 @@ export default {
 }
 .carousel-container {
   display: flex;
-  justify-content: center; /* Center the carousel container horizontally */
+  justify-content: center;
   margin-top: 20px;
 }
 
 .carousel {
-  max-width: 300px; /* Set the max-width to match the homepage carousel */
-  margin: 0 auto; /* Center the carousel within the container */
+  max-width: 300px;
+  margin: 0 auto;
 }
 
 .carousel-item {
   object-fit: cover;
-  width: 100%; /* Ensure the image fills the container */
-  height: auto; /* Maintain aspect ratio */
+  width: 100%;
+  height: auto;
 }
 
 .carousel-caption {
@@ -598,24 +619,19 @@ export default {
   text-align: center;
   width: 100%;
   padding: 10px;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* Add a semi-transparent background for better readability */
-  border-radius: 8px; /* Optional: Add some border radius to the caption background */
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
 }
 
 .carousel-control-prev,
 .carousel-control-next {
-  filter: invert(1); /* Optional: Adjust the color of the carousel controls */
+  filter: invert(1);
 }
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-  background-color: #000; /* Optional: Adjust the background color of the icons */
-  border-radius: 50%; /* Optional: Make the background of the icons circular */
+  background-color: #000;
+  border-radius: 50%;
 }
 .saved-recipes-carousel {
   margin-top: 20px;
@@ -747,5 +763,40 @@ export default {
 
 .close-btn:hover {
   background-color: #7e591d;
+}
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+}
+
+.chat-icon {
+  font-size: 24px;
+  color: white;
+  background-color: #d29433;
+  border-radius: 50%;
+  padding: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+}
+
+.chat-icon:hover {
+  background-color: #b57622;
+}
+
+.welcome-message {
+  background: linear-gradient(135deg, #ff6f00, #d29433);
+  color: #000000;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  z-index: 10;
+  font-size: 14px;
+  margin-right: 10px;
 }
 </style>

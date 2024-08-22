@@ -88,13 +88,12 @@ export default {
         console.log("No recipe data available");
         return [];
       }
-      const recipeData = this.recipe.recipe; // Access the nested recipe object
+      const recipeData = this.recipe.recipe;
       const ingredients = [];
       for (let i = 1; i <= 12; i++) {
         const ingredient = recipeData[`strIngredient${i}`];
-        const measure = recipeData[`strMeasure${i}`] || ""; // Default to empty string if measure is missing
+        const measure = recipeData[`strMeasure${i}`] || "";
         if (ingredient) {
-          // Only add non-empty ingredients
           ingredients.push({ name: ingredient, measure: measure });
         }
       }
@@ -111,7 +110,7 @@ export default {
     },
     async moveRecipe() {
       try {
-        const response = await this.recipesAPI.deleteRecipe(this.recipe._id); // Pretpostavka da se ID recepta čuva u `_id`
+        const response = await this.recipesAPI.deleteRecipe(this.recipe._id);
         if (response.message === "Recipe deleted successfully.") {
           eventBus.emit("recipeMoved", this.recipe._id);
           this.closeModal();
@@ -215,7 +214,7 @@ a {
   align-items: center;
   justify-content: center;
   margin-top: 20px;
-  background-color: #d9534f; /* Red tone */
+  background-color: #d9534f;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -223,6 +222,6 @@ a {
   font-size: 1.2rem;
 }
 .move-recipe-container:hover {
-  background-color: #c9302c; /* Darker red on hover */
+  background-color: #c9302c;
 }
 </style>

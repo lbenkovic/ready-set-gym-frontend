@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import { useRecipesAPIStore } from "@/stores/recipesAPIStore";
 import eventBus from "@/eventBus";
+import { useRecipesAPIStore } from "@/stores/recipesAPIStore";
 
 export default {
   name: "recipesComponent",
@@ -111,7 +111,6 @@ export default {
       if (res.data.data.recipes.length > 0) {
         const savedRecipe = res.data.data.recipes[0].recipe;
 
-        // Check if savedRecipe is a string before parsing
         if (typeof savedRecipe === "string") {
           this.recipe = JSON.parse(savedRecipe);
         } else {

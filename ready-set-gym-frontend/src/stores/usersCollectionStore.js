@@ -5,7 +5,7 @@ import axios from "axios";
 
 export const useUsersCollectionStore = defineStore("usersCollectionStore", {
   state: () => ({
-    searchResults: [], // Inicijalizacija sa praznim nizom
+    searchResults: [],
     searchLoading: false,
   }),
   actions: {
@@ -50,7 +50,6 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
           },
           { withCredentials: true }
         );
-        // console.log("LOGIN:", response);
         const token = response.data.data.token;
         localStorage.setItem("token", token);
         return response;

@@ -16,7 +16,6 @@ export const useUserDiaryCollectionStore = defineStore(
           const response = await axios.get(`${BACKEND_URL}/diary`, {
             withCredentials: true,
           });
-          // console.log(response);
           return response.data.data.diaries;
         } catch (error) {
           this.handleError(error);
@@ -41,7 +40,7 @@ export const useUserDiaryCollectionStore = defineStore(
         try {
           const token = this.getToken();
           const response = await axios.delete(
-            `${BACKEND_URL}/diary/${diaryId}`, // Ovdje je ispravljena ruta
+            `${BACKEND_URL}/diary/${diaryId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

@@ -49,6 +49,7 @@
 <script>
 import eventBus from "@/eventBus";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
+
 export default {
   name: "editProfileDataModalBody",
   data() {
@@ -146,10 +147,10 @@ export default {
   padding: 10px;
   border-radius: 5px;
   position: absolute;
-  bottom: 10%; /* Pomerite iznad gumba */
+  bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 10px; /* Razmak između alert poruke i gumba */
+  margin-bottom: 10px;
   width: 300px;
   text-align: center;
 }

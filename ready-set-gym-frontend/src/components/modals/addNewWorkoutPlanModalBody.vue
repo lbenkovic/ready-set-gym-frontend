@@ -77,6 +77,8 @@
 
 <script>
 import eventBus from "@/eventBus";
+import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
+import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
 import { ref } from "vue";
 import { inject } from "vue";
 import {
@@ -84,8 +86,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
-import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
-import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
+
 export default {
   name: "addNewWorkoutPlanModalBody",
   data() {
@@ -132,7 +133,7 @@ export default {
 
     const saveNewWorkoutPlan = async (imageUrl) => {
       try {
-        const email = localStorage.getItem("userEmail"); // Or get email from another secure place
+        const email = localStorage.getItem("userEmail");
         const formData = {
           email: email,
           name: workoutPlanName.value,

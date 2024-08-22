@@ -74,9 +74,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, computed } from "vue";
 import Chart from "chart.js/auto";
 import eventBus from "@/eventBus";
+import { ref, nextTick, onMounted, computed } from "vue";
 import { useUserDiaryCollectionStore } from "@/stores/userDiaryCollectionStore";
 import { useWeightCollectionStore } from "@/stores/weightCollectionStore";
 
@@ -136,7 +136,6 @@ const removeWeight = async (date) => {
 };
 
 const renderChart = (weights) => {
-  // Ensure canvas context is available
   nextTick(() => {
     const ctx = weightChartEl.value?.getContext("2d");
     if (!ctx) {
@@ -183,7 +182,7 @@ const updateChart = async () => {
     const response = await weightCollectionStore.updateChart();
     if (Array.isArray(response)) {
       weights.value = response;
-      renderChart(weights.value); // Call renderChart after weights are updated
+      renderChart(weights.value);
     } else {
       console.error("Unexpected response structure:", response);
     }
@@ -268,12 +267,12 @@ onMounted(() => {
 .weight-progress {
   margin-top: 3rem;
   display: flex;
-  flex-direction: column; /* Stack items vertically */
+  flex-direction: column;
   align-items: center;
 }
 
 .weight-progress-header {
-  margin-bottom: 1rem; /* Space between header and chart */
+  margin-bottom: 1rem;
 }
 
 .canvas-box {

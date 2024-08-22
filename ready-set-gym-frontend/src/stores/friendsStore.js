@@ -1,13 +1,12 @@
-// stores/friendsStore.js
 import { defineStore } from "pinia";
 import axios from "axios";
 import config from "../../config.json";
 
 export const useFriendsStore = defineStore("friendsStore", {
   state: () => ({
-    sentRequests: [], // Email addresses of users to whom requests have been sent
-    acceptedRequests: [], // Email addresses of users who have accepted requests
-    pendingRequests: [], // Email addresses of users who have sent requests
+    sentRequests: [],
+    acceptedRequests: [],
+    pendingRequests: [],
   }),
   actions: {
     async fetchRequests() {
@@ -43,7 +42,7 @@ export const useFriendsStore = defineStore("friendsStore", {
           { email },
           { withCredentials: true }
         );
-        await this.fetchRequests(); // Refresh the state
+        await this.fetchRequests();
         console.log("Friend request sent to:", email);
       } catch (error) {
         console.error("Error sending friend request:", error);
@@ -56,7 +55,7 @@ export const useFriendsStore = defineStore("friendsStore", {
           { email },
           { withCredentials: true }
         );
-        await this.fetchRequests(); // Refresh the state
+        await this.fetchRequests();
         console.log("Friend request canceled:", email);
       } catch (error) {
         console.error("Error canceling friend request:", error);
@@ -69,7 +68,7 @@ export const useFriendsStore = defineStore("friendsStore", {
           { email },
           { withCredentials: true }
         );
-        await this.fetchRequests(); // Refresh the state
+        await this.fetchRequests();
         console.log("Request accepted:", email);
       } catch (error) {
         console.error("Error accepting request:", error);
@@ -82,7 +81,7 @@ export const useFriendsStore = defineStore("friendsStore", {
           { email },
           { withCredentials: true }
         );
-        await this.fetchRequests(); // Refresh the state
+        await this.fetchRequests();
         console.log("Request denied:", email);
       } catch (error) {
         console.error("Error denying request:", error);

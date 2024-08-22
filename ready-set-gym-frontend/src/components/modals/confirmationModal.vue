@@ -45,7 +45,7 @@ export default {
 <style scoped>
 .confirmation-modal {
   z-index: 1050;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -60,7 +60,7 @@ export default {
   text-align: center;
   padding: 20px;
   border-radius: 8px;
-  margin-bottom: 6vh; /* Adjust as needed */
+  margin-bottom: 6vh;
   position: relative;
 }
 

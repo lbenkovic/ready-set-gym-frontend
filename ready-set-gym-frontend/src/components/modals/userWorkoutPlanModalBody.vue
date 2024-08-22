@@ -24,9 +24,10 @@
     </div>
   </div>
 </template>
+
 <script>
-import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
 import eventBus from "@/eventBus";
+import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
 
 export default {
   name: "userWorkoutPlanModalBody",
@@ -52,7 +53,7 @@ export default {
         if (newVal) {
           const workoutPlanData =
             this.workoutPlansCollectionStore.getUserWorkoutPlanData(newVal);
-          console.log("Workout Plan Data:", workoutPlanData); // Log the fetched data
+          console.log("Workout Plan Data:", workoutPlanData);
           this.workoutPlanData = workoutPlanData;
         }
       },
@@ -66,8 +67,8 @@ export default {
         );
         if (response.message === "Plan deleted successfully.") {
           eventBus.emit("planMoved", this.workoutPlanData._id);
-          this.closeModal(); // Close the modal in this component
-          eventBus.emit("closeModal"); // Emit an event to notify the parent component
+          this.closeModal();
+          eventBus.emit("closeModal");
         } else {
           console.error("Failed to delete plan:", response.message);
         }
@@ -130,7 +131,7 @@ export default {
   align-items: center;
   justify-content: center;
   margin-top: 20px;
-  background-color: #d9534f; /* Red tone */
+  background-color: #d9534f;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -138,6 +139,6 @@ export default {
   font-size: 1.2rem;
 }
 .move-plan-container:hover {
-  background-color: #c9302c; /* Darker red on hover */
+  background-color: #c9302c;
 }
 </style>

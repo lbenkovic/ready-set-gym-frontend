@@ -38,7 +38,6 @@ export const useWeightCollectionStore = defineStore("weightCollectionStore", {
         const response = await axios.get(`${BACKEND_URL}/weight`, {
           withCredentials: true,
         });
-        // console.log(response.data.data.weights);
         return response.data.data.weights;
       } catch (error) {
         this.handleError(error, "Error fetching weights");

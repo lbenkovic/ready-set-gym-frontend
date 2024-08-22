@@ -13,12 +13,11 @@ export const useWorkoutPlansCollectionStore = defineStore(
       getUserWorkoutPlanData: (state) => (id) => {
         return Array.isArray(state.userWorkouts)
           ? state.userWorkouts.find((plan) => plan._id.toString() === id)
-          : null; // Ensure userWorkouts is an array
+          : null;
       },
     },
     actions: {
       async saveNewUserWorkoutPlan(formData) {
-        // const token = localStorage.getItem("token");
         const response = await axios.post(
           `${config.BACKEND_URL}/workout-plan`,
           formData,
@@ -27,7 +26,6 @@ export const useWorkoutPlansCollectionStore = defineStore(
         return response;
       },
       async fetchUserWorkouts() {
-        //const email = localStorage.getItem("userEmail");
         const response = await axios.get(`${config.BACKEND_URL}/workout-plan`, {
           withCredentials: true,
         });
@@ -41,7 +39,7 @@ export const useWorkoutPlansCollectionStore = defineStore(
               withCredentials: true,
             }
           );
-          return response.data; // Return the response to check the deletion status
+          return response.data;
         } catch (error) {
           console.error("Error deleting plan:", error);
           throw new Error("Failed to delete plan");

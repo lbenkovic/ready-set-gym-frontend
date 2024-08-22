@@ -72,7 +72,7 @@ export default {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centriranje kartica unutar kontejnera */
+  align-items: center;
 }
 
 .exercise-card {
@@ -80,18 +80,18 @@ export default {
   align-items: center;
   margin: 1vw 0;
   width: 100%;
-  width: 350px; /* Maksimalna širina kartice */
+  width: 350px;
   box-sizing: border-box;
 }
 
 .exercise-card img {
-  width: 250px; /* Postavite maksimalnu širinu slike */
+  width: 250px;
   height: auto;
-  margin-right: 15px; /* Razmak između slike i naslova */
+  margin-right: 15px;
 }
 
 .exercise-card h4 {
-  margin: 0; /* Uklonite margin oko naslova */
-  text-align: left; /* Poravnanje naslova levo pored slike */
+  margin: 0;
+  text-align: left;
 }
 </style>

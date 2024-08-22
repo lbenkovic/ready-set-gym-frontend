@@ -29,7 +29,6 @@ export const useRecipesAPIStore = defineStore("recipesAPIStore", {
       const res = await axios.get(`${BACKEND_URL}/recipe`, {
         withCredentials: true,
       });
-      // console.log(res);
       return res;
     },
     async deleteRecipe(recipeId) {
@@ -40,7 +39,7 @@ export const useRecipesAPIStore = defineStore("recipesAPIStore", {
             withCredentials: true,
           }
         );
-        return response.data; // Vratite odgovor da biste mogli provjeriti uspješnost brisanja
+        return response.data;
       } catch (error) {
         console.error("Error deleting recipe:", error);
         throw new Error("Failed to delete recipe");

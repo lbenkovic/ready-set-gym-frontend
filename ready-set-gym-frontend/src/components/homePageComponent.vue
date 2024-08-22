@@ -224,19 +224,17 @@
 import eventBus from "@/eventBus";
 import mainModal from "@/views/modalBody.vue";
 import userWorkoutPlanModalBody from "@/components/modals/userWorkoutPlanModalBody.vue";
-
 import { useExerciseLiseCollectionStore } from "@/stores/exerciseListCollectionStore";
 import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
 import { useFriendsStore } from "@/stores/friendsStore";
-import { debounce } from "lodash";
 
 export default {
   name: "homePageComponent",
   data() {
     return {
       activeModal: false,
-      currentWorkoutPlan: "", // Variable to keep track of the current workout plan
+      currentWorkoutPlan: "",
       modalType: "recommended-workout-plan",
       searchText: "",
       userWorkouts: [],
@@ -273,9 +271,9 @@ export default {
     await this.friendsStore.fetchRequests();
     eventBus.on("closeModal", (closeModalData) => {
       if (closeModalData.closeModal) {
-        console.log("Closing modal..."); // Debug output
+        console.log("Closing modal...");
         this.activeModal = false;
-        console.log("Modal status:", this.activeModal); // Should be false
+        console.log("Modal status:", this.activeModal);
       }
     });
     eventBus.on("planMoved", (planId) => {
@@ -334,7 +332,6 @@ export default {
         try {
           await this.friendsStore.sendFriendRequest(email);
           console.log("Request sent for:", email);
-          // No need to force update if Vue reactivity works
         } catch (error) {
           console.error("Error adding friend:", error);
         }
@@ -345,7 +342,6 @@ export default {
         try {
           await this.friendsStore.cancelRequest(email);
           console.log("Request canceled for:", email);
-          // No need to force update if Vue reactivity works
         } catch (error) {
           console.error("Error canceling request:", error);
         }
@@ -469,13 +465,8 @@ export default {
   text-align: center;
   width: 100%;
   padding: 10px;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* Semi-transparent background for readability */
-  border-radius: 8px; /* Add border radius for rounded corners */
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
 }
 .search-results {
   margin-top: 20px;
@@ -502,17 +493,17 @@ export default {
 }
 
 .search-results button.accepted {
-  background-color: #28a745; /* Green for accepted */
+  background-color: #28a745;
   color: white;
 }
 
 .search-results button.pending {
-  background-color: #dc3545; /* Red for pending */
+  background-color: #dc3545;
   color: white;
 }
 
 .search-results button.default {
-  background-color: #d29433; /* Default color */
+  background-color: #d29433;
   color: white;
 }
 
