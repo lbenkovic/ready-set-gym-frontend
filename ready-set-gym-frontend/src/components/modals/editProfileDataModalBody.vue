@@ -22,7 +22,12 @@
           class="input-field"
           required
         />
-        <div v-if="errorMessage" class="alert alert-danger" role="alert">
+        <div
+          v-if="errorMessage"
+          class="alert alert-danger"
+          role="alert"
+          :class="{ 'move-out': isErrorMessageMoved }"
+        >
           {{ errorMessage }}
         </div>
 
@@ -49,7 +54,6 @@
 <script>
 import eventBus from "@/eventBus";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
-
 export default {
   name: "editProfileDataModalBody",
   data() {
@@ -60,6 +64,7 @@ export default {
       newPassword: null,
       loading: false,
       errorMessage: "",
+      isErrorMessageMoved: false,
     };
   },
   setup() {
@@ -70,6 +75,7 @@ export default {
     async changePassword() {
       this.loading = true;
       this.errorMessage = "";
+      this.isErrorMessageMoved = false;
       try {
         const formData = {
           firstName: this.firstName,
@@ -85,11 +91,16 @@ export default {
           const closeModalData = {
             closeModal: true,
           };
+          eventBus.emit("updateUserData"); // Emit event on success
           eventBus.emit("closeModal", closeModalData);
         } else {
-          console.log("WHAT THE FUCK");
           this.loading = false;
           this.errorMessage = "Old password doesn't match.";
+          this.isErrorMessageMoved = true;
+          setTimeout(() => {
+            this.errorMessage = "";
+            this.isErrorMessageMoved = false;
+          }, 1000);
         }
       } catch (error) {
         console.error(error.response);
@@ -147,10 +158,10 @@ export default {
   padding: 10px;
   border-radius: 5px;
   position: absolute;
-  bottom: 10%;
+  bottom: 10%; /* Pomerite iznad gumba */
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* Razmak između alert poruke i gumba */
   width: 300px;
   text-align: center;
 }
