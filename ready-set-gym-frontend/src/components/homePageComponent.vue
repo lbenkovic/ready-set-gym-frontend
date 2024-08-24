@@ -221,6 +221,7 @@
       v-if="activeModal && modalType === 'user-workout-plan'"
       :activeModal="activeModal"
       :workoutPlan="currentWorkoutPlan"
+      @close="handleClose"
     />
   </div>
 </template>
@@ -279,7 +280,8 @@ export default {
       if (closeModalData.closeModal) {
         console.log("Closing modal...");
         this.activeModal = false;
-        console.log("Modal status:", this.activeModal);
+        this.modalType = "";
+        this.currentWorkoutPlan = "";
       }
     });
     eventBus.on("planMoved", (planId) => {
@@ -295,11 +297,19 @@ export default {
       this.modalType = modalType;
       this.currentWorkoutPlan = workoutPlan; // Ensure this is a valid string or null
       this.activeModal = true;
+
       eventBus.emit("openModal", {
         modalType: modalType,
         workoutPlan: workoutPlan,
       });
     },
+    handleClose() {
+      console.log("Modal close handler triggered");
+      this.activeModal = false;
+      this.modalType = "";
+      this.currentWorkoutPlan = "";
+    },
+
     closeModal() {
       console.log("Closing modal...");
       this.activeModal = false;

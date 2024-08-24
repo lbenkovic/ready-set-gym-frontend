@@ -18,19 +18,32 @@
         <h4>{{ exercise.title }}</h4>
       </div>
     </div>
-    <div class="move-plan-container" type="button" @click="movePlan">
+    <div
+      class="move-plan-container"
+      type="button"
+      @click="showDeleteModal = true"
+    >
       <span>DELETE PLAN</span>
       <span class="material-symbols-outlined">delete</span>
     </div>
+    <deletePlanModal
+      :isVisible="showDeleteModal"
+      @confirm="handleDelete"
+      @cancel="showDeleteModal = false"
+    />
   </div>
 </template>
 
 <script>
 import eventBus from "@/eventBus";
+import deletePlanModal from "@/components/modals/deletePlanModal.vue";
 import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionStore";
 
 export default {
   name: "userWorkoutPlanModalBody",
+  components: {
+    deletePlanModal,
+  },
   props: {
     workoutPlan: {
       type: String,
@@ -40,6 +53,7 @@ export default {
   data() {
     return {
       workoutPlanData: null,
+      showDeleteModal: false,
     };
   },
   setup() {
@@ -65,21 +79,19 @@ export default {
       this.workoutPlanData = null; // Reset specific data if necessary
       this.$emit("close"); // Trigger the close event
     },
-    async movePlan() {
+    async handleDelete() {
       try {
-        const confirmation = confirm(
-          "Are you sure you want to delete this workout plan?"
+        await this.workoutPlansCollectionStore.deletePlan(
+          this.workoutPlanData._id
         );
-        if (confirmation) {
-          await this.workoutPlansCollectionStore.deleteUserWorkoutPlan(
-            this.workoutPlanData._id
-          );
-          eventBus.emit("success", "Plan deleted successfully");
-          eventBus.emit("refreshWorkoutPlans"); // Refresh workout plans list
-          this.$emit("close");
-        }
+        eventBus.emit("success", "Plan deleted successfully");
+        console.log("Plan deleted, emitting close event...");
+        this.$emit("close"); // Ensure this emits correctly
+        eventBus.emit("refreshWorkoutPlans");
       } catch (error) {
         console.error("Error deleting workout plan:", error);
+      } finally {
+        this.showDeleteModal = false;
       }
     },
   },
