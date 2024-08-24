@@ -24,6 +24,7 @@
           <li v-for="user in searchResults" :key="user._id">
             {{ user.firstName }} {{ user.lastName }}
             <button
+              v-if="user.email !== currentUserEmail"
               :class="{
                 accepted: isFriend(user.email),
                 pending: isRequestPending(user.email),
@@ -216,7 +217,11 @@
       :modal-type="modalType"
       :workout-plan="currentWorkoutPlan"
     />
-    <userWorkoutPlanModalBody :activeModal="activeModal" />
+    <userWorkoutPlanModalBody
+      v-if="activeModal && modalType === 'user-workout-plan'"
+      :activeModal="activeModal"
+      :workoutPlan="currentWorkoutPlan"
+    />
   </div>
 </template>
 
@@ -269,6 +274,7 @@ export default {
     this.fetchUserWorkouts();
     this.fetchNewUserWorkouts();
     await this.friendsStore.fetchRequests();
+
     eventBus.on("closeModal", (closeModalData) => {
       if (closeModalData.closeModal) {
         console.log("Closing modal...");
@@ -285,14 +291,21 @@ export default {
   },
   methods: {
     openModalEvent(modalType, workoutPlan) {
-      console.log("Opening modal for workout plan ID:", workoutPlan);
+      console.log("Opening modal:", modalType, workoutPlan);
       this.modalType = modalType;
-      this.currentWorkoutPlan = workoutPlan;
+      this.currentWorkoutPlan = workoutPlan; // Ensure this is a valid string or null
       this.activeModal = true;
       eventBus.emit("openModal", {
         modalType: modalType,
         workoutPlan: workoutPlan,
       });
+    },
+    closeModal() {
+      console.log("Closing modal...");
+      this.activeModal = false;
+      this.modalType = "";
+      this.currentWorkoutPlan = "";
+      eventBus.emit("closeModal", { closeModal: true });
     },
     openModal() {
       this.activeModal = !this.activeModal;
@@ -351,6 +364,9 @@ export default {
   computed: {
     searchResults() {
       return this.usersCollectionStore.searchResults;
+    },
+    currentUserEmail() {
+      return this.usersCollectionStore.getUserEmail;
     },
   },
 };

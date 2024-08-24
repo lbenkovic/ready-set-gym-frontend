@@ -31,16 +31,16 @@ import { useWorkoutPlansCollectionStore } from "@/stores/workoutPlansCollectionS
 
 export default {
   name: "userWorkoutPlanModalBody",
-  data() {
-    return {
-      workoutPlanData: null,
-    };
-  },
   props: {
     workoutPlan: {
       type: String,
       required: true,
     },
+  },
+  data() {
+    return {
+      workoutPlanData: null,
+    };
   },
   setup() {
     const workoutPlansCollectionStore = useWorkoutPlansCollectionStore();
@@ -49,44 +49,43 @@ export default {
   watch: {
     workoutPlan: {
       immediate: true,
-      handler(newVal) {
+      async handler(newVal) {
         if (newVal) {
-          const workoutPlanData =
-            this.workoutPlansCollectionStore.getUserWorkoutPlanData(newVal);
-          console.log("Workout Plan Data:", workoutPlanData);
-          this.workoutPlanData = workoutPlanData;
+          this.workoutPlanData =
+            await this.workoutPlansCollectionStore.getUserWorkoutPlanData(
+              newVal
+            );
+          console.log("Workout Plan Data:", this.workoutPlanData);
         }
       },
     },
   },
   methods: {
+    async closeModal() {
+      this.workoutPlanData = null; // Reset specific data if necessary
+      this.$emit("close"); // Trigger the close event
+    },
     async movePlan() {
       try {
-        const response = await this.workoutPlansCollectionStore.deletePlan(
-          this.workoutPlanData._id
+        const confirmation = confirm(
+          "Are you sure you want to delete this workout plan?"
         );
-        if (response.message === "Plan deleted successfully.") {
-          eventBus.emit("planMoved", this.workoutPlanData._id);
-          this.closeModal();
-          eventBus.emit("closeModal");
-        } else {
-          console.error("Failed to delete plan:", response.message);
+        if (confirmation) {
+          await this.workoutPlansCollectionStore.deleteUserWorkoutPlan(
+            this.workoutPlanData._id
+          );
+          eventBus.emit("success", "Plan deleted successfully");
+          eventBus.emit("refreshWorkoutPlans"); // Refresh workout plans list
+          this.$emit("close");
         }
       } catch (error) {
-        console.error("Error deleting plan:", error);
+        console.error("Error deleting workout plan:", error);
       }
     },
-    closeModal() {
-      eventBus.emit("closeModal");
-    },
-  },
-  created() {
-    eventBus.on("closeModal", () => {
-      this.closeModal();
-    });
   },
 };
 </script>
+
 <style scoped>
 .container h1 {
   text-align: center;

@@ -106,7 +106,9 @@ export default {
         this.userEmail
       );
       this.recipientName = `${response.firstName} ${response.lastName}`;
-      this.recipientImage = response.imagePath || "@/assets/profile.jpg";
+      this.recipientImage = response.imagePath
+        ? response.imagePath
+        : require("@/assets/profile.jpg");
     },
     sendMessage() {
       if (this.newMessage.trim() === "") return;

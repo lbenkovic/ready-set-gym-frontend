@@ -12,18 +12,10 @@
       <section class="gender">
         <h1 class="title">BMI CALCULATOR</h1>
         <div class="gender-buttons">
-          <button
-            @click="selectGender('male')"
-            :class="{ 'btn-active-male': male, 'btn-inactive': !male }"
-            class="gender-btn"
-          >
+          <button @click="selectGender('male')" class="gender-btn btn-male">
             <span class="material-symbols-outlined gender-icon">male</span>
           </button>
-          <button
-            @click="selectGender('female')"
-            :class="{ 'btn-active-female': female, 'btn-inactive': !female }"
-            class="gender-btn"
-          >
+          <button @click="selectGender('female')" class="gender-btn btn-female">
             <span class="material-symbols-outlined gender-icon">female</span>
           </button>
         </div>
@@ -81,12 +73,6 @@ export default {
         return "You have excess body weight. Consult a doctor to reduce it.";
       return "You have a normal body weight. Eat healthily and engage in physical activity to maintain it.";
     },
-    maleBtnStyle() {
-      return this.male ? "btn-active-male" : "btn-inactive";
-    },
-    femaleBtnStyle() {
-      return this.female ? "btn-active-female" : "btn-inactive";
-    },
   },
   methods: {
     calculateBMI() {
@@ -98,12 +84,15 @@ export default {
       }
     },
     selectGender(gender) {
+      this.male = gender === "male";
+      this.female = gender === "female";
+
       if (gender === "male") {
-        this.male = !this.male;
-        this.female = false;
+        document.querySelector(".btn-male").classList.add("active");
+        document.querySelector(".btn-female").classList.remove("active");
       } else if (gender === "female") {
-        this.female = !this.female;
-        this.male = false;
+        document.querySelector(".btn-female").classList.add("active");
+        document.querySelector(".btn-male").classList.remove("active");
       }
     },
 
@@ -113,6 +102,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .heading {
   margin: 0;
@@ -158,13 +148,13 @@ export default {
   height: 100px;
   width: 100px;
   border-radius: 50%;
-  background-color: #d29433;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .gender-btn:hover {
@@ -177,16 +167,13 @@ export default {
   color: white;
 }
 
-.btn-active-male {
-  background-color: cyan;
+/* Boje za dugmad polova */
+.btn-male {
+  background-color: #00bfff;
 }
 
-.btn-active-female {
-  background-color: pink;
-}
-
-.btn-inactive {
-  background-color: #d29433;
+.btn-female {
+  background-color: #ff69b4;
 }
 
 .bmi {
@@ -219,8 +206,8 @@ export default {
 }
 
 .form-control::placeholder {
-  color: #b0b0b0; /* Lighter color for placeholder */
-  opacity: 1; /* Ensure visibility */
+  color: #b0b0b0;
+  opacity: 1;
 }
 
 .form-control:focus {
@@ -271,5 +258,21 @@ export default {
   color: #ffc107;
   margin-top: 10px;
   font-size: 1rem;
+}
+
+.btn-male.active {
+  transform: scale(1.15);
+  box-shadow: 0px 8px 20px rgba(0, 191, 255, 0.5);
+  border: 3px solid #00bfff;
+}
+
+.btn-female.active {
+  transform: scale(1.15);
+  box-shadow: 0px 8px 20px rgba(255, 105, 180, 0.5);
+  border: 3px solid #ff69b4;
+}
+
+.gender-btn.active .gender-icon {
+  transform: scale(1.3);
 }
 </style>
