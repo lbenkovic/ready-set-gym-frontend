@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import config from "../../config.json";
 import webSocketManager from "@/services/WebSocketManager";
-
 import axios from "axios";
 
 export const useUsersCollectionStore = defineStore("usersCollectionStore", {
@@ -15,7 +14,6 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
   },
   actions: {
     async updateUserProfilePicture(formData) {
-      const token = localStorage.getItem("token");
       try {
         const response = await axios.patch(
           `${config.BACKEND_URL}/user`,
@@ -26,11 +24,10 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         );
         return response;
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error updating profile picture:", error.response?.data);
       }
     },
     async updateUserData(formData) {
-      const token = localStorage.getItem("token");
       try {
         const response = await axios.patch(
           `${config.BACKEND_URL}/user`,
@@ -39,10 +36,9 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
             withCredentials: true,
           }
         );
-        // console.log("RESPONSE", response);
         return response;
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error updating user data:", error.response?.data);
       }
     },
     async fetchUserData(email, password) {
@@ -59,7 +55,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         localStorage.setItem("token", token);
         return response;
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error fetching user data:", error.response?.data);
       }
     },
     async logoutUser() {
@@ -71,7 +67,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         );
         webSocketManager.close();
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error logging out:", error.response?.data);
       }
     },
     async registerUser(firstName, lastName, email, password) {
@@ -84,7 +80,7 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         });
         return response;
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error registering user:", error.response?.data);
       }
     },
     async getUserProfile() {
@@ -92,13 +88,11 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
         const response = await axios.get(`${config.BACKEND_URL}/user`, {
           withCredentials: true,
         });
-        const data = response;
-        this.userEmail = data.data.data.user.email;
-
+        this.userEmail = response.data.data.user.email;
         webSocketManager.connect(this.userEmail);
-        return data;
+        return response;
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching user profile:", error);
       }
     },
     async searchUsers(query) {
@@ -111,10 +105,9 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
           }
         );
         this.searchResults = response.data.data.users;
-
-        this.searchLoading = false;
       } catch (error) {
-        console.error(error.response.data);
+        console.error("Error searching users:", error.response?.data);
+      } finally {
         this.searchLoading = false;
       }
     },
@@ -126,10 +119,9 @@ export const useUsersCollectionStore = defineStore("usersCollectionStore", {
             withCredentials: true,
           }
         );
-
         return response.data.data.user;
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching Gym Bros data:", error);
       }
     },
   },

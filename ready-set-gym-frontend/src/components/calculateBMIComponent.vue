@@ -1,12 +1,7 @@
 <template>
   <div>
     <header class="heading">
-      <img
-        class="heading-img"
-        src="@/assets/logorsg.jpg"
-        alt="Logo"
-        @click="navigateHome"
-      />
+      <img class="heading-img" src="@/assets/logorsg.jpg" alt="Logo" />
     </header>
     <main class="main">
       <section class="gender">
@@ -95,10 +90,6 @@ export default {
         document.querySelector(".btn-male").classList.remove("active");
       }
     },
-
-    navigateHome() {
-      this.$router.push("/home");
-    },
   },
 };
 </script>
@@ -167,7 +158,6 @@ export default {
   color: white;
 }
 
-/* Boje za dugmad polova */
 .btn-male {
   background-color: #00bfff;
 }

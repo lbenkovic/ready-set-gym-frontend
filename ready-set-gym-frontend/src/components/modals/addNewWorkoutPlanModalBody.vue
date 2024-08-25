@@ -146,7 +146,6 @@ export default {
         const res = await workoutPlansCollectionStore.saveNewUserWorkoutPlan(
           formData
         );
-        console.log("Response:", res);
         if (res.status === 201) {
           eventBus.emit("success", "Workout plan added successfully!");
           closeModal();

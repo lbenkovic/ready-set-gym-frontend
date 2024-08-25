@@ -18,7 +18,7 @@
           />
         </div>
       </div>
-      <!-- Korisnici prikazani nakon pretrage -->
+
       <div v-if="searchText && searchResults.length > 0" class="search-results">
         <ul>
           <li v-for="user in searchResults" :key="user._id">
@@ -271,14 +271,13 @@ export default {
   },
   async created() {
     await this.workoutPlansCollectionStore.fetchUserWorkouts();
+    await this.friendsStore.fetchRequests();
     this.fetchExerciseList();
     this.fetchUserWorkouts();
     this.fetchNewUserWorkouts();
-    await this.friendsStore.fetchRequests();
 
     eventBus.on("closeModal", (closeModalData) => {
       if (closeModalData.closeModal) {
-        console.log("Closing modal...");
         this.activeModal = false;
         this.modalType = "";
         this.currentWorkoutPlan = "";
@@ -293,9 +292,8 @@ export default {
   },
   methods: {
     openModalEvent(modalType, workoutPlan) {
-      console.log("Opening modal:", modalType, workoutPlan);
       this.modalType = modalType;
-      this.currentWorkoutPlan = workoutPlan; // Ensure this is a valid string or null
+      this.currentWorkoutPlan = workoutPlan;
       this.activeModal = true;
 
       eventBus.emit("openModal", {
@@ -304,14 +302,12 @@ export default {
       });
     },
     handleClose() {
-      console.log("Modal close handler triggered");
       this.activeModal = false;
       this.modalType = "";
       this.currentWorkoutPlan = "";
     },
 
     closeModal() {
-      console.log("Closing modal...");
       this.activeModal = false;
       this.modalType = "";
       this.currentWorkoutPlan = "";
@@ -322,7 +318,6 @@ export default {
     },
     fetchUserWorkouts() {
       this.userWorkouts = this.workoutPlansCollectionStore.getAllUserWorkouts;
-      console.log("User Workouts:", this.userWorkouts);
     },
     fetchNewUserWorkouts() {
       eventBus.on("success", async () => {
@@ -354,20 +349,14 @@ export default {
       ) {
         try {
           await this.friendsStore.sendFriendRequest(email);
-          console.log("Request sent for:", email);
-        } catch (error) {
-          console.error("Error adding friend:", error);
-        }
+        } catch (error) {}
       }
     },
     async cancelRequest(email) {
       if (this.friendsStore.isRequestPending(email)) {
         try {
           await this.friendsStore.cancelRequest(email);
-          console.log("Request canceled for:", email);
-        } catch (error) {
-          console.error("Error canceling request:", error);
-        }
+        } catch (error) {}
       }
     },
   },

@@ -45,8 +45,8 @@ export default defineComponent({
     const surname = ref("");
     const email = ref("");
     const password = ref("");
+    const router = useRouter();
     const usersCollectionStore = useUsersCollectionStore();
-    const router = useRouter(); // Use the useRouter hook
 
     const btnStyleGreen = {
       borderRadius: "20px",
@@ -63,7 +63,7 @@ export default defineComponent({
         password.value
       );
       if (res) {
-        router.push("/login"); // Use router instance to navigate
+        router.push("/login");
       }
     };
 
@@ -114,16 +114,16 @@ export default defineComponent({
   color: white;
   border: none;
   border-radius: 20px;
-  padding: 10px 10px; /* Povećava unutarnji razmak */
-  font-size: 15px; /* Povećava veličinu fonta */
-  width: 350px; /* Povećava širinu gumba */
-  margin-top: 20px; /* Povećava razmak od drugih elemenata */
-  text-align: center; /* Centriranje teksta unutar gumba */
-  cursor: pointer; /* Promjena kursora na ruku */
+  padding: 10px 10px;
+  font-size: 15px;
+  width: 350px;
+  margin-top: 20px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .btn-success:hover {
-  background-color: #218838; /* Tamnija boja prilikom prelaska miša */
+  background-color: #218838;
 }
 
 .btn-dark {

@@ -7,7 +7,6 @@ import config from "../../config.json";
 import axios from "axios";
 import generalView from "@/views/generalView.vue";
 import chatPage from "@/components/chatPage.vue";
-import chatBot from "@/components/chatBot.vue";
 
 const routes = [
   {
@@ -38,11 +37,6 @@ const routes = [
     component: chatPage,
     name: "chatPage",
     props: true,
-  },
-  {
-    path: "/chatbot",
-    component: chatBot,
-    name: "chatBot",
   },
 ];
 

@@ -84,14 +84,13 @@ export default {
           new_password: this.newPassword,
         };
         const res = await this.usersCollectionStore.updateUserData(formData);
-        console.log("edit RES:", res);
         if (res.data.message !== "Old password doesn't match.") {
           this.loading = false;
           eventBus.emit("success", "Data updated successfully!");
           const closeModalData = {
             closeModal: true,
           };
-          eventBus.emit("updateUserData"); // Emit event on success
+          eventBus.emit("updateUserData");
           eventBus.emit("closeModal", closeModalData);
         } else {
           this.loading = false;
@@ -158,10 +157,10 @@ export default {
   padding: 10px;
   border-radius: 5px;
   position: absolute;
-  bottom: 10%; /* Pomerite iznad gumba */
+  bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 10px; /* Razmak između alert poruke i gumba */
+  margin-bottom: 10px;
   width: 300px;
   text-align: center;
 }

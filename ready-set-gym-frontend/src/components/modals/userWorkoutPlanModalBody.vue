@@ -69,15 +69,14 @@ export default {
             await this.workoutPlansCollectionStore.getUserWorkoutPlanData(
               newVal
             );
-          console.log("Workout Plan Data:", this.workoutPlanData);
         }
       },
     },
   },
   methods: {
     async closeModal() {
-      this.workoutPlanData = null; // Reset specific data if necessary
-      this.$emit("close"); // Trigger the close event
+      this.workoutPlanData = null;
+      this.$emit("close");
     },
     async handleDelete() {
       try {
@@ -85,8 +84,7 @@ export default {
           this.workoutPlanData._id
         );
         eventBus.emit("success", "Plan deleted successfully");
-        console.log("Plan deleted, emitting close event...");
-        this.$emit("close"); // Ensure this emits correctly
+        this.$emit("close");
         eventBus.emit("refreshWorkoutPlans");
       } catch (error) {
         console.error("Error deleting workout plan:", error);

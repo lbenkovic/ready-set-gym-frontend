@@ -85,7 +85,6 @@ export default {
   computed: {
     filteredIngredients() {
       if (!this.recipe || !this.recipe.recipe) {
-        console.log("No recipe data available");
         return [];
       }
       const recipeData = this.recipe.recipe;
@@ -97,7 +96,6 @@ export default {
           ingredients.push({ name: ingredient, measure: measure });
         }
       }
-      console.log("Filtered Ingredients:", ingredients);
       return ingredients;
     },
   },
@@ -124,7 +122,6 @@ export default {
   },
   created() {
     eventBus.on("openRecipeModal", (data) => {
-      console.log("Received recipe data:", data.recipe);
       this.recipe = data.recipe;
       this.activeModal = true;
     });

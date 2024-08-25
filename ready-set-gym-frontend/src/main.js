@@ -14,14 +14,13 @@ const firebaseConfig = {
   appId: "1:759431144786:web:31187370d92cba0b4a468b",
 };
 
-// Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(firebaseApp);
 
 const pinia = createPinia();
 const app = createApp(App);
 
-app.provide("firebaseStorage", storage); // Providing storage to all components
+app.provide("firebaseStorage", storage);
 app.use(router);
 app.use(pinia);
 app.mount("#app");

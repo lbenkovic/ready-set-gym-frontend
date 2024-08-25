@@ -1,12 +1,7 @@
 <template>
   <div class="main-container">
     <header class="heading">
-      <img
-        class="heading-img"
-        src="@/assets/logorsg.jpg"
-        alt="Logo"
-        @click="navigateHome"
-      />
+      <img class="heading-img" src="@/assets/logorsg.jpg" alt="Logo" />
     </header>
 
     <main class="main">
@@ -81,7 +76,7 @@
 <script setup>
 import Chart from "chart.js/auto";
 import eventBus from "@/eventBus";
-import { ref, nextTick, onMounted, computed } from "vue";
+import { ref, nextTick, onMounted } from "vue";
 import { useUserDiaryCollectionStore } from "@/stores/userDiaryCollectionStore";
 import { useWeightCollectionStore } from "@/stores/weightCollectionStore";
 
@@ -131,7 +126,6 @@ const removeWeight = async (date) => {
     updateChart();
     eventBus.emit("success", "Weight removed successfully!");
   } catch (error) {
-    console.error("Error removing weight:", error);
     eventBus.emit("error", "Failed to remove weight.");
   }
 };
@@ -140,7 +134,6 @@ const renderChart = (weights) => {
   nextTick(() => {
     const ctx = weightChartEl.value?.getContext("2d");
     if (!ctx) {
-      console.error("Canvas context is not available.");
       return;
     }
 
@@ -184,8 +177,6 @@ const updateChart = async () => {
     if (Array.isArray(response)) {
       weights.value = response;
       renderChart(weights.value);
-    } else {
-      console.error("Unexpected response structure:", response);
     }
   } catch (error) {
     console.error("Error updating chart:", error);

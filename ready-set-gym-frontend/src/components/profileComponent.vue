@@ -23,16 +23,6 @@
             {{ userFullName }}
           </h2>
         </div>
-        <div class="chat-container">
-          <div v-if="showWelcomeMessage" class="welcome-message">
-            How can I help you?
-          </div>
-          <span
-            class="material-symbols-outlined chat-icon"
-            @click="navigateToChatbot"
-            >chat</span
-          >
-        </div>
       </section>
 
       <section class="gym-bros-section">
@@ -231,7 +221,6 @@ export default {
     const recipes = ref([]);
     const friendsStore = useFriendsStore();
     const pendingRequests = ref([]);
-    const showWelcomeMessage = ref(true);
 
     const fetchPendingRequests = async () => {
       await friendsStore.fetchRequests();
@@ -242,7 +231,6 @@ export default {
       try {
         await friendsStore.acceptRequest(email);
         await fetchPendingRequests();
-        alert("Request accepted!");
       } catch (error) {
         console.error("Error accepting request:", error);
       }
@@ -252,7 +240,6 @@ export default {
       try {
         await friendsStore.denyRequest(email);
         await fetchPendingRequests();
-        alert("Request denied!");
       } catch (error) {
         console.error("Error denying request:", error);
       }
@@ -267,7 +254,7 @@ export default {
     const fetchUserRecipes = async () => {
       try {
         const response = await recipesAPI.fetchUsersRecipes();
-        // console.log(response);
+
         if (
           response &&
           response.data &&
@@ -294,9 +281,6 @@ export default {
       fetchUserDiaries();
       fetchUserRecipes();
       fetchPendingRequests();
-      setTimeout(() => {
-        showWelcomeMessage.value = false;
-      }, 5000);
     });
 
     const deleteDiaryEntry = async (diaryId) => {
@@ -327,7 +311,6 @@ export default {
       pendingRequests,
       acceptRequest,
       denyRequest,
-      showWelcomeMessage,
     };
   },
   methods: {
@@ -337,7 +320,7 @@ export default {
         this.successMessage = message;
         setTimeout(() => {
           this.successMessage = "";
-        }, 2000); // Prikazivanje poruke za 2 sekunde
+        }, 2000);
       }
     },
     toggleGymBrosModal() {
@@ -412,9 +395,6 @@ export default {
         params: { userEmail: email },
       });
     },
-    navigateToChatbot() {
-      this.$router.push("/chatbot");
-    },
   },
   created() {
     eventBus.on("closeModal", (data) => {
@@ -428,18 +408,17 @@ export default {
 
     eventBus.on("updateUserImage", async (newImagePath) => {
       this.userImage = newImagePath;
-      this.activeModal = false; // Close the modal
+      this.activeModal = false;
       this.closeModalAndShowSuccess("Profile picture updated successfully!");
     });
 
     eventBus.on("updateUserData", async () => {
       await this.getUserProfile();
       await this.getUserDiary();
-      this.activeModal = false; // Close the modal
+      this.activeModal = false;
       this.closeModalAndShowSuccess("Profile updated successfully!");
     });
     eventBus.on("openRecipeModal", (data) => {
-      // console.log("Received recipe data:", data.recipe); // Verify data
       this.recipe = data.recipe;
       this.activeModal = true;
     });
@@ -508,8 +487,8 @@ export default {
 }
 
 .profile-pic {
-  width: 100px; /* Adjust size as needed */
-  height: 100px; /* Adjust size as needed */
+  width: 100px;
+  height: 100px;
   background-size: cover;
   background-position: center;
   border-radius: 50%;
@@ -519,7 +498,7 @@ export default {
   margin-left: 50px;
   display: flex;
   align-items: center;
-  gap: 20px; /* Adjust spacing between profile picture and name */
+  gap: 20px;
 }
 
 .user-profile-img {
@@ -531,7 +510,7 @@ export default {
 }
 .user-info h2 {
   margin: 0;
-  font-size: 24px; /* Adjust font size as needed */
+  font-size: 24px;
   cursor: pointer;
 }
 .my-diaries-text {
@@ -827,7 +806,7 @@ export default {
 }
 
 .gym-bros-item .chat-icon {
-  color: black; /* Blue color for chat icon */
+  color: black;
   cursor: pointer;
 }
 

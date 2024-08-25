@@ -1,12 +1,7 @@
 <template>
   <div>
     <div class="heading">
-      <img
-        class="heading-img"
-        src="@/assets/logorsg.jpg"
-        alt="Logo"
-        @click="navigateHome"
-      />
+      <img class="heading-img" src="@/assets/logorsg.jpg" alt="Logo" />
     </div>
     <div class="main">
       <div class="gender">
@@ -117,9 +112,6 @@ export default {
           this.recipe = savedRecipe;
         }
       }
-    },
-    navigateHome() {
-      this.$router.push("/home");
     },
   },
   created() {

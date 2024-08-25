@@ -1,6 +1,5 @@
 <template>
   <div class="chat-page">
-    <!-- Main chat area -->
     <div class="chat-area">
       <div class="chat-header">
         <div class="header-content">
@@ -41,9 +40,10 @@
 </template>
 
 <script>
+import webSocketManager from "@/services/WebSocketManager";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
 import { useChatLogsCollectionStore } from "@/stores/chatLogCollectionStore";
-import webSocketManager from "@/services/WebSocketManager";
+
 export default {
   name: "ChatPage",
   props: ["userEmail", "userImage"],
@@ -121,7 +121,6 @@ export default {
       };
       webSocketManager.sendMessage(message);
       this.messages.push(message);
-      // console.log(this.messages);
       this.newMessage = "";
       this.$nextTick(() => {
         this.scrollToBottom();
@@ -134,16 +133,8 @@ export default {
       }
     },
     selectConversation(conversation) {
-      // Logic to load selected conversation
       this.userEmail = conversation.userEmail;
       this.messages = conversation.messages;
-    },
-    filterConversations() {
-      this.filteredConversations = this.conversations.filter((conversation) =>
-        conversation.userEmail
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase())
-      );
     },
   },
 };

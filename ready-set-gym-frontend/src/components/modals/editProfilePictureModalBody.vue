@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import eventBus from "@/eventBus";
 import { inject } from "vue";
 import { ref } from "vue";
 import {
@@ -39,7 +40,6 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { useUsersCollectionStore } from "@/stores/usersCollectionStore";
-import eventBus from "@/eventBus";
 
 export default {
   name: "editProfilePictureModalBody",
@@ -81,10 +81,9 @@ export default {
       const res = await usersCollectionStore.updateUserProfilePicture(formData);
 
       if (res.status >= 200 && res.status < 300) {
-        console.log("Image path updated in DB:", imagePath);
         eventBus.emit("updateUserImage", imagePath);
         eventBus.emit("closeModal", { closeModal: true });
-        eventBus.emit("success", "Profile picture updated successfully!"); // Emitiranje poruke o uspjehu
+        eventBus.emit("success", "Profile picture updated successfully!");
       } else {
         console.error("Failed to update image path in DB", res);
       }
